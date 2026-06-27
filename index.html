@@ -735,15 +735,47 @@ h2.section-title em{ font-family: var(--font-serif); font-style:italic; color: v
 
 .genealogy-svg{
   width:100%;
-  min-width: 1100px;
+  min-width: 1400px;
   height: auto;
+  min-height: 820px;
   display:block;
   cursor: grab;
   user-select:none;
 }
 .genealogy-svg:active{ cursor: grabbing }
 
-/* =================== AC no Brasil tab view =================== */
+/* === Dendrograma (horizontal) ========================= */
+.dendro-wrap{
+  position:relative;
+  margin-top: 2rem;
+  padding: 1.5rem 1rem 2rem;
+  border: 1px solid rgba(110,86,56,.25);
+  background:
+    radial-gradient(ellipse at 0% 50%, rgba(247,238,212,.55) 0%, transparent 40%),
+    radial-gradient(ellipse at 100% 50%, rgba(196,176,136,.30) 0%, transparent 50%),
+    linear-gradient(90deg, rgba(247,238,212,.35), rgba(220,203,160,.20));
+  overflow: hidden;
+}
+.dendro-scroller{
+  position:relative; width:100%;
+  overflow-x:auto; overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.dendro-scroller::-webkit-scrollbar{ height:8px; width:8px }
+.dendro-scroller::-webkit-scrollbar-thumb{ background:rgba(110,86,56,.22); border-radius:4px }
+.dendro-svg{
+  display:block; cursor:grab; user-select:none;
+  /* fixed pixel size so overflow-scroll works independently of viewport */
+  width:1900px; height:1160px;
+}
+.dendro-svg:active{ cursor:grabbing }
+
+.genealogy-svg-h{                /* camadas: dimensão fixa — mantém o original */
+  width:100%; min-width:1100px; height:auto; display:block;
+  cursor:grab; user-select:none;
+}
+.genealogy-svg-h:active{ cursor:grabbing }
+
 .brasil-view{
   padding: 2rem 1.5rem 3rem;
   border: 1px solid rgba(58,122,90,.22);
@@ -752,6 +784,155 @@ h2.section-title em{ font-family: var(--font-serif); font-style:italic; color: v
     linear-gradient(180deg, rgba(247,238,212,.5), rgba(225,210,175,.2));
 }
 .bl-inner-header{ max-width:760px; margin:0 auto 1.5rem; text-align:center }
+
+/* ── MAP LAYOUT ─────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════
+   AC NO BRASIL — Discriminação de Estímulos / Lab-style
+   Cada região = forma geométrica clássica de treino discriminativo
+   Norte=quadrado  Nordeste=triângulo  Centro-Oeste=círculo
+   Sudeste=hexágono  Sul=losango
+   ═══════════════════════════════════════════════════════════ */
+
+/* container geral */
+.stim-lab{
+  font-family:'Courier New',Courier,monospace;
+  background:#18140e;
+  border:1px solid rgba(168,132,63,.35);
+  border-radius:4px;
+  padding:1.8rem 1.4rem 1.4rem;
+  margin-bottom:1.6rem;
+  position:relative;
+  overflow:hidden;
+}
+/* grade de pontos tipo papel quadriculado de laboratório */
+.stim-lab::before{
+  content:"";
+  position:absolute; inset:0; pointer-events:none;
+  background-image:
+    radial-gradient(circle, rgba(168,132,63,.18) 1px, transparent 1px);
+  background-size:22px 22px;
+  z-index:0;
+}
+/* cabeçalho do painel */
+.stim-lab-hd{
+  position:relative; z-index:1;
+  display:flex; align-items:center; gap:.9rem;
+  margin-bottom:1.4rem; flex-wrap:wrap;
+}
+.stim-lab-hd .stim-prompt{
+  font-size:.62rem; letter-spacing:.22em; text-transform:uppercase;
+  color:rgba(168,132,63,.7); border:1px solid rgba(168,132,63,.3);
+  padding:.22rem .55rem;
+}
+.stim-lab-hd .stim-legend{
+  display:flex; gap:1.1rem; flex-wrap:wrap; margin-left:auto;
+}
+.stim-leg-item{
+  display:flex; align-items:center; gap:.4rem;
+  font-size:.58rem; letter-spacing:.14em; text-transform:uppercase; color:rgba(168,132,63,.5);
+}
+.stim-leg-item svg{ width:12px; height:12px; flex:none }
+
+/* grade de 5 células (uma por região) */
+.stim-grid{
+  position:relative; z-index:1;
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: auto auto;
+  gap:1.1rem;
+}
+@media(max-width:680px){ .stim-grid{ grid-template-columns:1fr 1fr } }
+@media(max-width:420px){ .stim-grid{ grid-template-columns:1fr } }
+
+/* cada célula-região */
+.stim-cell{
+  border:1px solid rgba(168,132,63,.22);
+  background:rgba(24,20,14,.7);
+  padding:.9rem .9rem .75rem;
+  display:flex; flex-direction:column; gap:.65rem;
+  position:relative;
+}
+/* forma geométrica no canto */
+.stim-cell-shape{
+  position:absolute; top:.7rem; right:.75rem; opacity:.18;
+  width:36px; height:36px;
+}
+
+/* título da célula */
+.stim-cell-title{
+  font-size:.55rem; letter-spacing:.28em; text-transform:uppercase;
+  color:rgba(168,132,63,.75); margin:0; display:flex; align-items:center; gap:.5rem;
+}
+.stim-cell-title .shape-badge{ width:11px; height:11px; flex:none }
+
+/* lista de PPGs como estímulos discriminativos */
+.stim-ppg-list{
+  list-style:none; margin:0; padding:0;
+  display:flex; flex-direction:column; gap:.32rem;
+}
+.stim-ppg{
+  display:flex; align-items:flex-start; gap:.5rem;
+}
+.stim-dot{
+  width:6px; height:6px; border-radius:50%; flex:none; margin-top:.35rem;
+  background:rgba(168,132,63,.55); border:1px solid rgba(168,132,63,.9);
+  transition:background .15s;
+}
+.stim-ppg:hover .stim-dot{ background:rgba(168,132,63,1) }
+.stim-ppg a{
+  font-size:.75rem; line-height:1.38; color:rgba(230,210,160,.8);
+  text-decoration:none; letter-spacing:.02em;
+  border-bottom:1px dotted rgba(168,132,63,0);
+  transition:color .15s, border-color .15s;
+}
+.stim-ppg a:hover{ color:#e6d2a0; border-bottom-color:rgba(168,132,63,.8) }
+.stim-ppg a .ppg-city{
+  display:block; font-size:.62rem; letter-spacing:.08em;
+  color:rgba(168,132,63,.48); margin-top:.05rem;
+}
+/* UEL highlighted */
+.stim-ppg--home .stim-dot{ background:var(--gold); border-color:var(--gold) }
+.stim-ppg--home a{ color:var(--gold) }
+.stim-ppg--home a:hover{ color:#f0c84a }
+
+/* ── REFS CARD ─────────────────────────────────────── */
+.brasil-refs-card{
+  margin-top:1rem; padding:1.6rem 1.8rem;
+  border:1px solid rgba(110,86,56,.22);
+  background:linear-gradient(145deg,rgba(247,238,212,.6),rgba(243,233,207,.3));
+  border-radius:4px;
+}
+.refs-title{
+  font-family:var(--font-display); font-size:1.1rem; font-weight:700;
+  color:var(--ink); margin:.3rem 0 .5rem;
+}
+.refs-note{
+  font-family:var(--font-serif); font-style:italic; font-size:.9rem;
+  color:var(--ink-faded); margin:0 0 1.2rem;
+}
+.refs-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.9rem }
+.ref-item{
+  display:flex; gap:1rem; align-items:flex-start;
+  padding:.85rem 1rem; border-radius:3px;
+  background:rgba(247,238,212,.55); border:1px solid rgba(110,86,56,.15);
+}
+.ref-item--placeholder{ opacity:.5; border-style:dashed }
+.ref-badge{
+  flex:none; font-family:var(--font-sc); font-size:.6rem; letter-spacing:.1em;
+  text-transform:uppercase; color:#fff; background:var(--burgundy);
+  padding:.28rem .55rem; border-radius:2px; white-space:nowrap; margin-top:.1rem;
+}
+.ref-badge--ph{ background:var(--ink-ghost) }
+.ref-body{ flex:1; min-width:0 }
+.ref-title{
+  font-family:var(--font-serif); font-size:.98rem; font-weight:600;
+  color:var(--ink); margin:0 0 .22rem;
+}
+.ref-meta{
+  font-family:var(--font-body); font-size:.84rem; color:var(--ink-soft);
+  margin:0; line-height:1.5;
+}
+
 
 /* === generation legend === */
 .br-legend{
@@ -1602,6 +1783,47 @@ h2.section-title em{ font-family: var(--font-serif); font-style:italic; color: v
   text-align: center;
 }
 
+/* ── notas da seção #fazem ────────────────────────────── */
+.fazem-notes{
+  display:flex; flex-direction:column; gap:1.2rem;
+  margin-top:2rem; max-width:780px;
+}
+.fazem-note{
+  padding:1.1rem 1.35rem; border-radius:4px;
+  font-family:var(--font-body); font-size:.95rem; line-height:1.6; color:var(--ink-soft);
+}
+.fazem-note p{ margin:.4rem 0 }
+.fazem-note p:first-child{ margin-top:0 }
+.fazem-note p:last-child{ margin-bottom:0 }
+.fazem-note a{ color:var(--burgundy); text-underline-offset:2px }
+.fazem-note a:hover{ color:var(--ink) }
+.fazem-note-head{
+  font-family:var(--font-display); font-size:1rem; font-weight:700;
+  color:var(--ink); margin-bottom:.55rem !important; letter-spacing:.01em;
+}
+.fazem-obs{
+  margin-top:.6rem !important; padding:.6rem .8rem;
+  background:rgba(110,86,56,.07); border-left:3px solid var(--gold);
+  border-radius:0 3px 3px 0; font-family:var(--font-serif); font-style:italic; font-size:.93rem;
+}
+.fazem-note--fonte{
+  background:rgba(247,238,212,.55);
+  border:1px solid rgba(110,86,56,.2);
+}
+.fazem-note--skinner{
+  background:linear-gradient(135deg,rgba(138,58,58,.06),rgba(110,86,56,.04));
+  border:1px solid rgba(138,58,58,.22);
+  border-left:4px solid var(--c-skin,#8a3a3a);
+}
+.fazem-note--skinner .fazem-note-head{ color:var(--c-skin,#8a3a3a) }
+.fazem-note--aviso{
+  background:rgba(168,132,63,.06);
+  border:1px solid rgba(168,132,63,.28);
+  border-left:4px solid var(--gold);
+}
+.fazem-note--aviso .fazem-note-head{ color:var(--gold) }
+
+
 /* =================== Glossary accordion =================== */
 .glossary-grid{
   margin-top: 1.8rem;
@@ -1762,6 +1984,71 @@ h2.section-title em{ font-family: var(--font-serif); font-style:italic; color: v
   font-family: var(--font-serif); font-style: italic;
   color: var(--ink-soft); max-width: 720px; margin: 0 auto;
 }
+
+/* =================== Seção de Professores · mascotes pixel-art =================== */
+.professors-section{ padding: 4rem 0 3rem }
+
+.prof-criacom-header{
+  display: flex; align-items: flex-start; gap: 2rem;
+  margin-bottom: 3rem; flex-wrap: wrap;
+}
+.criacom-logo{
+  width: 130px; height: 130px; object-fit: contain; flex: none;
+  filter: drop-shadow(0 2px 8px rgba(110,86,56,.18));
+  transition: transform .3s var(--ease);
+}
+.criacom-logo:hover{ transform: scale(1.06) rotate(-2deg) }
+.criacom-text{ flex: 1; min-width: 220px }
+.criacom-text .eyebrow{ margin-bottom: .3rem }
+.criacom-text .section-title{ margin: .2rem 0 .5rem }
+.criacom-text .section-lead{ margin: 0 }
+
+.prof-cards{
+  display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;
+}
+@media(max-width: 740px){ .prof-cards{ grid-template-columns: 1fr } }
+
+.prof-card{
+  display: flex; gap: 1.4rem; align-items: flex-start;
+  padding: 1.6rem; border-radius: 6px;
+  background: linear-gradient(145deg, rgba(247,238,212,.6), rgba(243,233,207,.35));
+  border: 1px solid rgba(110,86,56,.2);
+  transition: box-shadow .25s var(--ease), transform .25s var(--ease);
+}
+.prof-card:hover{
+  box-shadow: 0 8px 28px rgba(74,52,32,.13);
+  transform: translateY(-2px);
+}
+
+.prof-mascot{ flex: none }
+.prof-mascot-img{
+  width: 110px; height: 110px; object-fit: cover;
+  border-radius: 6px;
+  image-rendering: pixelated;          /* keeps the pixel-art crisp */
+  border: 2px solid rgba(110,86,56,.22);
+  box-shadow: 0 4px 12px rgba(74,52,32,.18);
+  transition: transform .3s var(--ease);
+}
+.prof-card:hover .prof-mascot-img{ transform: scale(1.04) }
+
+.prof-info{ flex: 1; min-width: 0 }
+.prof-nome{
+  font-family: var(--font-display); font-size: 1.05rem; font-weight: 700;
+  color: var(--ink); margin: 0 0 .18rem;
+}
+.prof-role{
+  font-family: var(--font-sc); font-size: .62rem; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--ink-ghost); margin: 0 0 .55rem;
+}
+.prof-bio{
+  font-family: var(--font-body); font-size: .92rem; color: var(--ink-soft);
+  line-height: 1.55; margin: 0 0 .7rem;
+}
+
+/* =================== Turmas section =================== */
+.turmas-section{ padding: 3rem 0 2rem }
+.turmas-section .agradecimentos{ margin-top: 1.5rem; padding-top: 1.5rem }
+
 
 /* =================== Agradecimentos · Álbum de turmas =================== */
 .agradecimentos{
@@ -2044,8 +2331,15 @@ footer .bottom em{ color: var(--gold-light); font-style: normal }
 }
 .marg-cloud-head{
   display:flex; align-items:baseline; gap:.7rem; flex-wrap:wrap;
-  margin-bottom:1rem; padding-left:14px;
+  margin-bottom:1rem; padding-left:14px; cursor:pointer; user-select:none;
 }
+.marg-cloud.is-collapsed{ margin-bottom:1rem; padding-bottom:1.4rem }
+.marg-cloud.is-collapsed .marg-cloud-head{ margin-bottom:0 }
+.marg-cloud.is-collapsed .marg-cloud-body{ display:none }
+.marg-cloud.is-collapsed .cloud-clear{ display:none }
+.cloud-caret{ align-self:center; display:flex; color: var(--burgundy); transition: transform .25s }
+.cloud-caret svg{ width:15px; height:15px; display:block }
+.marg-cloud:not(.is-collapsed) .cloud-caret{ transform: rotate(90deg) }
 .marg-cloud-head h4{
   font-family: var(--font-display); font-weight:700; font-size:1.05rem; color: var(--ink);
 }
@@ -2240,10 +2534,9 @@ footer .bottom em{ color: var(--gold-light); font-style: normal }
   <button class="menu-toggle" aria-label="Menu">≡</button>
   <nav class="topnav">
     <a href="#introducao">Introdução</a>
+    <a href="#fazem">O que fazem</a>
     <a href="#exploracao">A Árvore</a>
-    <a href="#chapters">Capítulos</a>
-    <a href="#glossario">Glossário</a>
-    <a href="#sobre">Sobre</a>
+    <a href="#sobre">Professores</a>
     <a href="#marginalia">Marginália</a>
   </nav>
 </header>
@@ -2286,13 +2579,8 @@ footer .bottom em{ color: var(--gold-light); font-style: normal }
       <strong>Behaviorismos Modernos</strong><br>
       PPGAC · Universidade Estadual de Londrina<br>
       Ministrada por <strong>Hernando Borges Neves Filho</strong> &amp; <strong>Yulla Christoffersen Knaus</strong><br>
-      Grupo de Pesquisa <strong>CRIACOM</strong>
+      Grupo de Pesquisa <strong>CRIACOM</strong> — Criatividade e Comportamento
     </p>
-
-    <div class="actions">
-      <a href="#exploracao" class="btn">Adentrar a árvore</a>
-      <a href="#introducao" class="btn secondary">Como navegar</a>
-    </div>
   </div>
   <div class="scroll-prompt" aria-hidden="true">
     <span>Descer · folhear</span>
@@ -2300,62 +2588,65 @@ footer .bottom em{ color: var(--gold-light); font-style: normal }
   </div>
 </section>
 
-<!-- ============= INTRODUCTION ============= -->
-<section class="section" id="introducao">
+
+
+<!-- ============= O QUE BEHAVIORISTAS FAZEM ============= -->
+<section class="practice-section section" id="fazem">
   <div class="section-inner">
-    <p class="eyebrow reveal">§ Prefácio</p>
-    <h2 class="section-title reveal">Não uma linha, mas uma <em>árvore</em></h2>
-    <p class="section-lead reveal">O behaviorismo nunca foi uma escola homogênea. Foi — e segue sendo — uma família de programas científicos, filosóficos e tecnológicos com semelhanças de família, pontos de contato e divergências internas.</p>
+    <p class="eyebrow reveal">§ Prática · Ponto de partida</p>
+    <h2 class="section-title reveal">O que behavioristas <em>fazem?</em></h2>
 
-    <div class="section-divider reveal" aria-hidden="true">
-      <span class="line"></span>
-      <svg viewBox="0 0 32 32" fill="currentColor"><path d="M16 4 L20 14 L30 16 L20 18 L16 28 L12 18 L2 16 L12 14 Z"/></svg>
-      <span class="line"></span>
-    </div>
+    <p class="section-lead reveal">Antes de mergulhar na árvore, um mapa da prática. A Análise do Comportamento de tradição skinneriana organiza-se em quatro domínios interconectados — três clássicos e um quarto que os integra no mundo real.</p>
 
-    <div class="intro-grid stagger">
-      <div>
-        <p class="lead reveal" style="--i:0">Esta obra organiza a história dos behaviorismos como uma árvore genealógica, e não como uma sucessão linear. Cada nó — autor, movimento, obra ou tecnologia — é um ponto clicável. Cada um conserva seu período, sua linhagem, sua função no parentesco geral e suas semelhanças com outros ramos. Por trás da pluralidade, há três marcações de leitura que servem de bússola para o leitor.</p>
+    <div class="practice-box reveal" id="practiceBox"></div>
 
-        <p class="reveal" style="--i:1"><strong>Primeiro</strong>: <strong>Watson</strong> é o marco formal e público do behaviorismo em 1913 — não a origem absoluta, mas o catalisador que cristalizou em forma polêmica uma série de tendências já em curso na psicologia americana: animal, funcionalista, aplicada, antintrospectiva.</p>
-
-        <p class="reveal" style="--i:2"><strong>Segundo</strong>: <strong>Skinner</strong> é o tronco reorganizador mais influente. Ele articula em três níveis — filosofia da ciência, análise experimental e tecnologia comportamental — a herança de Pavlov, Thorndike, Watson, Loeb e do funcionalismo. Não substitui a árvore, mas a engrossa.</p>
-
-        <p class="reveal" style="--i:3"><strong>Terceiro</strong>: o século XXI apresenta uma <em>copa plural</em> — behaviorismos molares, teleológicos, teóricos, biológicos, contextuais, intencionais, de campo, culturais e digitais. A árvore segue viva, e em debate.</p>
+    <div class="fazem-notes reveal">
+      <div class="fazem-note fazem-note--fonte">
+        <p><strong>Modelo adaptado de Carvalho Neto (2002).</strong> A formulação original propõe três subáreas interligadas da Análise do Comportamento: o <em>Behaviorismo Radical</em> (filosofia), a <em>Análise Experimental do Comportamento</em> (ciência básica) e a <em>Análise Aplicada do Comportamento</em> (ciência aplicada e tecnologia) — num triângulo de alimentação recíproca. A referência está disponível em: <a href="https://revistas.ufpr.br/psicologia/article/view/3188/2551" target="_blank" rel="noopener">Carvalho Neto, M. B. (2002). Análise do comportamento: behaviorismo radical, análise experimental do comportamento e análise aplicada do comportamento. <em>Interação em Psicologia, 6</em>(1), 13–18.</a></p>
+        <p>A este esquema foi acrescentada uma <strong>quarta dimensão</strong>: a <em>Prestação de Serviços</em>. Ela envolve conhecimentos de gestão, administração, empreendedorismo e mercado — saberes raramente desenvolvidos na formação universitária clássica, mas indispensáveis para quem atua profissionalmente fora da academia. Não é uma subárea paralela: é o domínio que integra os três eixos tradicionais na prática cotidiana e nas demandas concretas do mundo extra-muros.</p>
       </div>
 
-      <aside class="aside-card reveal" style="--i:4">
-        <h3>Os Dez Galhos</h3>
-        <ul>
-          <li><span class="roman">0</span><a href="#chapter-1">Pré-história profunda: Grécia Antiga e Medievo</a></li>
-          <li><span class="roman">I</span><a href="#chapter-2">Pré-história filosófica, biológica e fisiológica</a></li>
-          <li><span class="roman">II</span><a href="#chapter-3">Psicologia norte-americana antes de Watson</a></li>
-          <li><span class="roman">III</span><a href="#chapter-4">Watson e o behaviorismo clássico</a></li>
-          <li><span class="roman">IV</span><a href="#chapter-5">Behaviorismos entre Watson e Skinner</a></li>
-          <li><span class="roman">V</span><a href="#chapter-6">O tronco skinneriano</a></li>
-          <li><span class="roman">VI</span><a href="#chapter-7">Institucionalização pós-skinneriana</a></li>
-          <li><span class="roman">VII</span><a href="#chapter-8">Behaviorismos filosóficos</a></li>
-          <li><span class="roman">VIII</span><a href="#chapter-9">Behaviorismos contemporâneos</a></li>
-          <li><span class="roman">IX</span><a href="#chapter-10">Cultura, organizações e ambientes digitais</a></li>
-        </ul>
-      </aside>
+      <div class="fazem-note fazem-note--skinner">
+        <p class="fazem-note-head">✦ Skinner como farol</p>
+        <p>Este modelo descreve a tradição que tem B. F. Skinner no centro. A Análise do Comportamento skinneriana é o tronco a partir do qual se lê a árvore abaixo — não porque seja o único behaviorismo válido, mas porque é o ponto de referência inescapável de toda a família behaviorista do século XX em diante.</p>
+        <p class="fazem-obs"><em>Behaviorismo pós-skinneriano:</em> adotamos este termo para qualquer programa de pesquisa ou sistema teórico que complementa, contrapõe ou dialoga com a obra de Skinner de modo central — seja aderindo, seja criticando, seja apenas tomando-a como ponto de partida. Em termos práticos: todo behaviorista que leu Skinner, mesmo que em parte, e cuja obra se define em relação a ele.</p>
+      </div>
+
+      <div class="fazem-note fazem-note--aviso">
+        <p class="fazem-note-head">⚠ Uma ressalva importante</p>
+        <p>Este modelo organiza a prática <em>da Análise do Comportamento skinneriana</em>. Os outros behaviorismos da árvore abaixo compartilham dessas dimensões em maior ou menor grau — alguns enfatizam mais a experimentação, outros a filosofia da linguagem, outros a biologia ou o contexto cultural. Vários <em>adicionam</em> dimensões próprias (intencionalidade, relações de enquadramento, campo interbehavioral); alguns <em>retiram</em> ou reformulam pressupostos do esquema skinneriano. A variedade é a norma, não a exceção. É justamente essa pluralidade que a árvore registra.</p>
+      </div>
     </div>
+
   </div>
 </section>
+
+
+<!-- ============= CHAPTERS ============= -->
+<section class="chapters-section" id="capitulosSection">
+  <div class="section-inner">
+    <p class="eyebrow reveal">§ Galhos</p>
+    <h2 class="section-title reveal">Capítulos <em>da árvore</em></h2>
+    <p class="section-lead reveal">Clique num capítulo para explorar os pensadores da época. Cada verbete abre um cartão detalhado.</p>
+    <div id="chapters"></div>
+  </div>
+</section>
+
 
 <!-- ============= EXPLORATION (TREE + TIMELINE) ============= -->
 <section class="section" id="exploracao" style="padding-top:2rem">
   <div class="section-inner">
     <p class="eyebrow reveal">§ I — A Árvore como Mapa</p>
     <h2 class="section-title reveal">O panorama <em>navegável</em></h2>
-    <p class="section-lead reveal">Toque qualquer nó para abrir seu cartão detalhado. Alterne entre a <strong>Genealogia</strong> — a grande árvore vertical dos behaviorismos — e a aba <strong>AC no Brasil</strong>, focada na institucionalização do campo em cada região do país.</p>
+    <p class="section-lead reveal">Toque qualquer nó para abrir seu cartão detalhado. <strong>Camadas</strong> mostra as épocas em faixas horizontais, das raízes gregas à copa contemporânea — leitura vertical. <strong>Dendrograma</strong> exibe a mesma árvore na horizontal, como uma filogenia, da origem à copa da esquerda para a direita. <strong>AC no Brasil</strong> detalha a institucionalização regional do campo.</p>
 
     <div class="viewswitch reveal" role="tablist" aria-label="Modo de visualização">
-      <button class="active" data-view="genealogy" role="tab" aria-selected="true">Genealogia</button>
-      <button data-view="brasil" role="tab" aria-selected="false">AC no Brasil</button>
+      <button class="active" data-view="genealogy" role="tab" aria-selected="true">Camadas</button>
+      <button data-view="dendro"   role="tab" aria-selected="false">Dendrograma</button>
+      <button data-view="brasil"   role="tab" aria-selected="false">AC no Brasil</button>
     </div>
 
-    <!-- GENEALOGIA view -->
+    <!-- CAMADAS view (original genealogy SVG) -->
     <div id="genealogyView" class="genealogy-wrap reveal">
       <div class="genealogy-hint">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6">
@@ -2370,111 +2661,207 @@ footer .bottom em{ color: var(--gold-light); font-style: normal }
         <button id="genReset"   class="zoom-btn" title="Resetar">⟳</button>
       </div>
       <div class="genealogy-scroller" id="genScroller">
-        <svg id="genealogySvg" class="genealogy-svg" viewBox="0 0 1500 3340" preserveAspectRatio="xMidYMid meet" aria-label="Genealogia vertical dos behaviorismos"></svg>
+        <svg id="genealogySvg" class="genealogy-svg" viewBox="0 0 2200 3900" preserveAspectRatio="xMidYMid meet" aria-label="Genealogia em camadas dos behaviorismos"></svg>
+      </div>
+    </div>
+
+    <!-- DENDROGRAMA view (horizontal, esquerda→direita) -->
+    <div id="dendroView" class="dendro-wrap reveal" style="display:none">
+      <div class="genealogy-hint">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M5 12 H19 M5 6 H12 M5 18 H12 M12 6 V18"/>
+        </svg>
+        <span>Arraste para navegar · scroll para zoom · toque em qualquer sinapse</span>
+      </div>
+      <div class="tree-controls" style="top:.6rem;right:.6rem">
+        <button id="denZoomIn"  class="zoom-btn" title="Aproximar">+</button>
+        <button id="denZoomOut" class="zoom-btn" title="Afastar">−</button>
+        <button id="denReset"   class="zoom-btn" title="Resetar">⟳</button>
+      </div>
+      <div class="dendro-scroller" id="denScroller">
+        <svg id="dendroSvg" class="dendro-svg" aria-label="Dendrograma horizontal dos behaviorismos"></svg>
       </div>
     </div>
 
     <!-- AC NO BRASIL view -->
-    <div id="brasilView" class="brasil-view reveal" style="display:none">
+    <div id="brasilView" class="brasil-view brasil-map-view reveal" style="display:none">
       <div class="bl-inner-header">
-        <p class="eyebrow">§ Institucionalização</p>
-        <h2 class="section-title">AC <em>no Brasil</em></h2>
-        <p class="section-lead">Clique em cada pesquisador para abrir o verbete completo. A árvore parte de Carolina Bori — a fundadora — e ramifica por região e tradição.</p>
+        <p class="eyebrow">§ AC no Brasil · PPGs por Região</p>
+        <h2 class="section-title">Análise do Comportamento <em>no Brasil</em></h2>
+        <p class="section-lead">Programas de pós-graduação organizados por região — cada região representada por uma forma geométrica, à maneira dos treinos de discriminação de estímulos. Toque em qualquer programa para acessá-lo.</p>
       </div>
-      <div class="brasil-scroller">
-        <div id="brazilContainer" class="brazil-container"></div>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- ============= CHAPTERS ============= -->
-<section class="chapters-section" id="capitulosSection">
-  <div class="section-inner">
-    <p class="eyebrow reveal">§ Galhos</p>
-    <h2 class="section-title reveal">Capítulos <em>da árvore</em></h2>
-    <p class="section-lead reveal">Clique num capítulo para explorar os pensadores da época. Cada verbete abre um cartão detalhado.</p>
-    <div id="chapters"></div>
-  </div>
-</section>
-
-<!-- ============= O QUE BEHAVIORISTAS FAZEM ============= -->
-<section class="practice-section section" id="fazem">
-  <div class="section-inner">
-    <p class="eyebrow reveal">§ Prática</p>
-    <h2 class="section-title reveal">O que behavioristas <em>fazem?</em></h2>
-    <p class="section-lead reveal">A Análise do Comportamento organiza-se em três dimensões interconectadas, sustentadas por uma filosofia comum. A prestação de serviços emerge como um quarto domínio — com exigências próprias da iniciativa privada.</p>
-    <div class="practice-box reveal" id="practiceBox"></div>
-    <p class="practice-source reveal">Baseado em: Zilio, D. (2019). <em>O que nos torna analistas do comportamento? A teoria como elemento integrador.</em> Acta Comportamentalia, 27(2), 233-249.</p>
-  </div>
-</section>
-
-<!-- ============= GLOSSARY ============= -->
-<section class="section" id="glossario">
-  <div class="section-inner">
-    <p class="eyebrow reveal">§ Léxico</p>
-    <h2 class="section-title reveal">Glossário <em>essencial</em></h2>
-    <p class="section-lead reveal">Conceitos recorrentes que servem de chave para o leitor que vem de fora da Análise do Comportamento.</p>
-    <div class="glossary-grid reveal" id="glossaryGrid"></div>
-  </div>
-</section>
-
-<!-- ============= BIBLIOGRAPHY ============= -->
-<section class="biblio" id="bibliografia">
-  <div class="section-inner">
-    <p class="eyebrow reveal">§ Fontes</p>
-    <h2 class="section-title reveal">Bibliografia <em>de base</em></h2>
-    <p class="section-lead reveal">Obras que estruturaram a versão consolidada deste compêndio.</p>
-    <ol class="biblio-list reveal" id="biblioList"></ol>
-  </div>
-</section>
-
-<!-- ============= ABOUT ============= -->
-<section class="about" id="sobre">
-  <div class="section-inner">
-    <p class="eyebrow reveal">§ Autoria</p>
-    <h2 class="section-title reveal">Autoria e manutenção <em>desta árvore</em></h2>
-    <p class="section-lead reveal">Esta árvore é produto coletivo da disciplina de pós-graduação <strong>Behaviorismos Modernos</strong>, ministrada no PPGAC-UEL pelos professores responsáveis pelo Grupo de Pesquisa CRIACOM.</p>
-
-    <!-- Autores compactos -->
-    <div class="autoria-grid reveal">
-      <div class="autor-item">
-        <div class="autor-avatar">HN</div>
-        <div>
-          <h3 class="autor-nome">Hernando Borges Neves Filho</h3>
-          <p class="autor-role">Professor · PPGAC-UEL · CRIACOM</p>
-          <a href="http://lattes.cnpq.br/2700793023719116" class="lattes-link" target="_blank" rel="noopener">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-            Currículo Lattes
-          </a>
+      <div class="stim-lab">
+        <div class="stim-lab-hd">
+          <span class="stim-prompt">Discriminação de Estímulos · PPGs em AC</span>
+          <div class="stim-legend">
+            <span class="stim-leg-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20"/></svg> Norte</span>
+            <span class="stim-leg-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12,2 22,22 2,22"/></svg> Nordeste</span>
+            <span class="stim-leg-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/></svg> Centro-Oeste</span>
+            <span class="stim-leg-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12,2 20,6.5 20,17.5 12,22 4,17.5 4,6.5"/></svg> Sudeste</span>
+            <span class="stim-leg-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12,2 22,12 12,22 2,12"/></svg> Sul</span>
+          </div>
+        </div>
+        <div class="stim-grid">
+        <div class="stim-cell" id="reg-norte">
+          <span class="stim-cell-shape" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20"/></svg></span>
+          <p class="stim-cell-title">
+            <span class="shape-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20"/></svg></span>
+            Norte — ▪ quadrado
+          </p>
+          <ul class="stim-ppg-list">
+          <li class="stim-ppg">
+            <span class="stim-dot"></span>
+            <a href="https://ppgtpc.propesp.ufpa.br/" target="_blank" rel="noopener">PPGTPC · UFPA<span class="ppg-city">Belém-PA</span></a>
+          </li>
+          <li class="stim-ppg">
+            <span class="stim-dot"></span>
+            <a href="https://www.ppgnc.ufam.edu.br/" target="_blank" rel="noopener">PPGNcC · UFAM<span class="ppg-city">Manaus-AM</span></a>
+          </li>
+          </ul>
+        </div>
+        <div class="stim-cell" id="reg-nordeste">
+          <span class="stim-cell-shape" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12,2 22,22 2,22"/></svg></span>
+          <p class="stim-cell-title">
+            <span class="shape-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12,2 22,22 2,22"/></svg></span>
+            Nordeste — ▲ triângulo
+          </p>
+          <ul class="stim-ppg-list">
+          <li class="stim-ppg">
+            <span class="stim-dot"></span>
+            <a href="https://posgraduacao.ufc.br/pt/ppgpsicologia" target="_blank" rel="noopener">PPGPsi · UFC<span class="ppg-city">Fortaleza-CE</span></a>
+          </li>
+          <li class="stim-ppg">
+            <span class="stim-dot"></span>
+            <a href="https://ppgp.ufba.br/" target="_blank" rel="noopener">PPGPsi · UFBA<span class="ppg-city">Salvador-BA</span></a>
+          </li>
+          <li class="stim-ppg">
+            <span class="stim-dot"></span>
+            <a href="https://www.ufpb.br/ppgpsi" target="_blank" rel="noopener">PPGPsi · UFPB<span class="ppg-city">João Pessoa-PB</span></a>
+          </li>
+          <li class="stim-ppg">
+            <span class="stim-dot"></span>
+            <a href="https://www.ufrn.br/" target="_blank" rel="noopener">PPGPsi · UFRN<span class="ppg-city">Natal-RN</span></a>
+          </li>
+          </ul>
+        </div>
+        <div class="stim-cell" id="reg-centro">
+          <span class="stim-cell-shape" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/></svg></span>
+          <p class="stim-cell-title">
+            <span class="shape-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/></svg></span>
+            Centro-Oeste — ● círculo
+          </p>
+          <ul class="stim-ppg-list">
+          <li class="stim-ppg">
+            <span class="stim-dot"></span>
+            <a href="https://ppgp.ip.unb.br/" target="_blank" rel="noopener">PPGPsi · UnB<span class="ppg-city">Brasília-DF</span></a>
+          </li>
+          <li class="stim-ppg">
+            <span class="stim-dot"></span>
+            <a href="https://www.ufms.br" target="_blank" rel="noopener">PPGPsi · UFMS<span class="ppg-city">Campo Grande-MS</span></a>
+          </li>
+          </ul>
+        </div>
+        <div class="stim-cell" id="reg-sudeste">
+          <span class="stim-cell-shape" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12,2 20,6.5 20,17.5 12,22 4,17.5 4,6.5"/></svg></span>
+          <p class="stim-cell-title">
+            <span class="shape-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12,2 20,6.5 20,17.5 12,22 4,17.5 4,6.5"/></svg></span>
+            Sudeste — ⬡ hexágono
+          </p>
+          <ul class="stim-ppg-list">
+          <li class="stim-ppg">
+            <span class="stim-dot"></span>
+            <a href="https://www.ip.usp.br/site/pos-graduacao/programa-de-pos-graduacao-em-psicologia-experimental/" target="_blank" rel="noopener">PPGPsi Exp. · USP<span class="ppg-city">São Paulo-SP</span></a>
+          </li>
+          <li class="stim-ppg">
+            <span class="stim-dot"></span>
+            <a href="https://www2.ufscar.br" target="_blank" rel="noopener">PPGPsi · UFSCar<span class="ppg-city">São Carlos-SP</span></a>
+          </li>
+          <li class="stim-ppg">
+            <span class="stim-dot"></span>
+            <a href="https://portal.puc-sp.br/programas/psicologia-experimental-analise-do-comportamento/" target="_blank" rel="noopener">PPGPsi Exp. AC · PUC-SP<span class="ppg-city">São Paulo-SP</span></a>
+          </li>
+          <li class="stim-ppg">
+            <span class="stim-dot"></span>
+            <a href="https://www.ppgpsicologia.uff.br/" target="_blank" rel="noopener">PPGPsi · UFF<span class="ppg-city">Niterói-RJ</span></a>
+          </li>
+          <li class="stim-ppg">
+            <span class="stim-dot"></span>
+            <a href="https://www.ufjf.br/ppgpsicologia/" target="_blank" rel="noopener">PPGPsi · UFJF<span class="ppg-city">Juiz de Fora-MG</span></a>
+          </li>
+          </ul>
+        </div>
+        <div class="stim-cell" id="reg-sul">
+          <span class="stim-cell-shape" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12,2 22,12 12,22 2,12"/></svg></span>
+          <p class="stim-cell-title">
+            <span class="shape-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12,2 22,12 12,22 2,12"/></svg></span>
+            Sul — ◆ losango
+          </p>
+          <ul class="stim-ppg-list">
+          <li class="stim-ppg stim-ppg--home">
+            <span class="stim-dot"></span>
+            <a href="https://www.uel.br/pos/pgac/" target="_blank" rel="noopener">PPGAC · UEL ✦<span class="ppg-city">Londrina-PR</span></a>
+          </li>
+          <li class="stim-ppg">
+            <span class="stim-dot"></span>
+            <a href="https://www.ufrgs.br/ppgpsi/" target="_blank" rel="noopener">PPGPsi · UFRGS<span class="ppg-city">Porto Alegre-RS</span></a>
+          </li>
+          <li class="stim-ppg">
+            <span class="stim-dot"></span>
+            <a href="https://ppgpsi.ufsc.br/" target="_blank" rel="noopener">PPGPsi · UFSC<span class="ppg-city">Florianópolis-SC</span></a>
+          </li>
+          <li class="stim-ppg">
+            <span class="stim-dot"></span>
+            <a href="https://www.uem.br/pos-psi" target="_blank" rel="noopener">PPGPsi · UEM<span class="ppg-city">Maringá-PR</span></a>
+          </li>
+          </ul>
+        </div>
         </div>
       </div>
-      <div class="autor-item">
-        <div class="autor-avatar">YK</div>
-        <div>
-          <h3 class="autor-nome">Yulla Christoffersen Knaus</h3>
-          <p class="autor-role">Professora · PPGAC-UEL · CRIACOM</p>
-          <a href="http://lattes.cnpq.br/3658176432597172" class="lattes-link" target="_blank" rel="noopener">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-            Currículo Lattes
-          </a>
-        </div>
+
+      <!-- REFS CARD -->
+      <div class="brasil-refs-card reveal">
+        <p class="eyebrow">§ Para aprofundar</p>
+        <h3 class="refs-title">Referências sobre a história da AC no Brasil</h3>
+        <p class="refs-note">Obras para conhecer a história e os protagonistas da Análise do Comportamento no país. Mais referências serão adicionadas.</p>
+        <ul class="refs-list">
+          <li class="ref-item">
+            <span class="ref-badge">Autobiografias</span>
+            <div class="ref-body">
+              <p class="ref-title">Histórias de vida de analistas do comportamento brasileiros (3 vols.)</p>
+              <p class="ref-meta">Guilhardi, H. J. et al. (Orgs.). Série de volumes autobiográficos de pioneiros e consolidadores da Análise do Comportamento no Brasil. ESETec Editores Associados, Santo André.</p>
+            </div>
+          </li>
+          <li class="ref-item ref-item--placeholder">
+            <span class="ref-badge ref-badge--ph">Em breve</span>
+            <div class="ref-body">
+              <p class="ref-title">Adicionar referência</p>
+              <p class="ref-meta">— placeholder —</p>
+            </div>
+          </li>
+          <li class="ref-item ref-item--placeholder">
+            <span class="ref-badge ref-badge--ph">Em breve</span>
+            <div class="ref-body">
+              <p class="ref-title">Adicionar referência</p>
+              <p class="ref-meta">— placeholder —</p>
+            </div>
+          </li>
+        </ul>
       </div>
-    </div>
 
-    <!-- CRIACOM banner -->
-    <div class="about-banner reveal">
-      <p class="label">CRIACOM · Universidade Estadual de Londrina</p>
-      <p class="title">Grupo de Pesquisa em Cognição &amp; Análise do Comportamento</p>
-      <p class="note">O CRIACOM é um espaço de investigação sediado na UEL que articula pesquisa básica e aplicada em análise do comportamento, cognição comparada e behaviorismos contemporâneos. Esta árvore é um de seus produtos didáticos, pensada como material aberto para estudantes, pesquisadores e professores de todo o Brasil.</p>
-    </div>
+    </div><!-- /brasilView -->
+  </div>
+</section>
 
-    <!-- ========== AGRADECIMENTOS ESPECIAIS ========== -->
+
+<!-- ============= TURMAS ============= -->
+<!-- ============= TURMAS ============= -->
+<section class="section turmas-section" id="turmas">
+  <div class="section-inner">
+    <p class="eyebrow reveal">§ Agradecimentos especiais</p>
+    <h2 class="section-title reveal">Discentes da disciplina <em>Behaviorismos Modernos</em></h2>
+    <p class="section-lead reveal">Cada turma que passou pela disciplina contribuiu com leituras, verbetes, debates e anotações. As fotos abaixo registram os behavioristas de hoje — toque para ampliar.</p>
     <div class="agradecimentos reveal">
-      <span class="agr-eyebrow">§ Agradecimentos especiais</span>
-      <h3>Discentes da Disciplina<br><em>Behaviorismos Modernos</em> · PPGAC-UEL</h3>
-      <p class="agr-lead">Cada turma que passou pela disciplina contribuiu com leituras, verbetes, discussões e revisões que tornam esta árvore mais densa. A estas pessoas — orientandas, orientandos e colegas — nosso obrigado. Esta galeria cresce a cada nova turma.</p>
-
       <div class="turmas-album">
 
         <!-- Turma 2023 -->
@@ -2486,7 +2873,7 @@ footer .bottom em{ color: var(--gold-light); font-style: normal }
                alt="Turma 2023 da disciplina Behaviorismos Modernos · PPGAC-UEL"
                loading="lazy">
           <span class="pol-zoom" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
           </span>
           <div class="polaroid-caption">
             Turma 2023
@@ -2500,10 +2887,10 @@ footer .bottom em{ color: var(--gold-light); font-style: normal }
              data-cap="Turma 2026" data-sub="Behaviorismos Modernos · PPGAC-UEL"
              aria-label="Ampliar foto da Turma 2026">
           <img src="img/turma2026.jpeg"
-               alt="Turma 2026 da disciplina Behaviorismos Modernos · PPGAC-UEL, reunida diante do bloco de Psicologia"
+               alt="Turma 2026 da disciplina Behaviorismos Modernos · PPGAC-UEL"
                loading="lazy">
           <span class="pol-zoom" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
           </span>
           <div class="polaroid-caption">
             Turma 2026
@@ -2511,9 +2898,8 @@ footer .bottom em{ color: var(--gold-light); font-style: normal }
           </div>
         </div>
 
-      </div><!-- /turmas-album -->
-    </div><!-- /agradecimentos -->
-
+      </div>
+    </div>
   </div>
 </section>
 
@@ -2522,12 +2908,11 @@ footer .bottom em{ color: var(--gold-light); font-style: normal }
   <div class="section-inner">
     <p class="eyebrow reveal">§ O debate continua · avaliação viva</p>
     <h2 class="section-title reveal">Marginália — <em>os behaviorismos lidos por quem os herda</em></h2>
-    <p class="section-lead reveal">Numa das avaliações de <strong>Behaviorismos Modernos</strong>, cada discente seleciona e comenta passagens dos quatro behaviorismos reunidos por Zilio &amp; Carrara — o <strong>teleológico</strong> de Rachlin, o <strong>molar</strong> de Baum, o <strong>teórico</strong> de Staddon e o <strong>biológico</strong> de Donahoe. Não são resenhas fechadas: são reações, dúvidas, concordâncias e estranhamentos anotados à margem do texto. Reunidas, formam uma nuvem viva de impressões — a voz dos behavioristas de hoje. E ela cresce a cada nova turma.</p>
+    <p class="section-lead reveal">Numa das avaliações de <strong>Behaviorismos Modernos</strong>, cada discente seleciona e comenta passagens dos <strong>sete behaviorismos</strong> reunidos por Zilio &amp; Carrara — o <strong>teleológico</strong> de Rachlin, o <strong>molar</strong> de Baum, o <strong>teórico</strong> de Staddon, o <strong>biológico</strong> de Donahoe, o <strong>intencional</strong> de Foxall, o <strong>contextual</strong> de Hayes e o <strong>de campo</strong> de Ribes-Iñesta. Não são resenhas fechadas: são reações, dúvidas, concordâncias e estranhamentos anotados à margem do texto. Aqui nada vem aberto — cada capítulo é uma camada a descobrir: <em>toque um capítulo</em> para revelar os trechos, <em>toque um nome</em> para ler a opinião. A nuvem cresce a cada nova turma.</p>
     <p class="marg-cite reveal">Sobre: Zilio, D., &amp; Carrara, K. (Eds.). (2021). <em>Contemporary Behaviorisms in Debate</em>. Springer. · Trechos selecionados pelas próprias turmas; comentários reproduzidos como entregues.</p>
 
     <div class="marg-controls reveal">
       <div class="marg-years" id="margYears" role="tablist" aria-label="Turma"></div>
-      <div class="marg-filters" id="margFilters" aria-label="Filtrar por behaviorismo"></div>
       <div class="marg-meta">
         <span class="marg-count" id="margCount"></span>
         <button class="marg-shuffle" id="margShuffle" type="button" aria-label="Embaralhar as anotações">
@@ -2537,20 +2922,83 @@ footer .bottom em{ color: var(--gold-light); font-style: normal }
       </div>
     </div>
 
-    <div class="marg-cloud reveal" id="margCloudBox">
-      <div class="marg-cloud-head">
-        <h4>Nuvem de conceitos em disputa</h4>
-        <span class="hint">toque um conceito para isolar as vozes que o tocam</span>
-        <span class="cloud-clear" id="cloudClear">limpar realce ✕</span>
-      </div>
-      <div class="marg-cloud-body" id="margCloud"></div>
-    </div>
-
     <div class="marg-allbtns reveal" id="margAllBtns">
       <button class="marg-shuffle" id="margExpandAll" type="button">expandir tudo</button>
       <button class="marg-shuffle" id="margCollapseAll" type="button">recolher tudo</button>
     </div>
+
+    <div class="marg-cloud reveal is-collapsed" id="margCloudBox">
+      <div class="marg-cloud-head" id="cloudToggle" role="button" tabindex="0" aria-expanded="false">
+        <span class="cloud-caret"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
+        <h4>Nuvem de conceitos em disputa</h4>
+        <span class="hint">abra e toque um conceito para acender as vozes que o tocam</span>
+        <span class="cloud-clear" id="cloudClear">limpar realce ✕</span>
+      </div>
+      <div class="marg-cloud-body" id="margCloud"></div>
+    </div>
     <div class="marg-wall" id="margWall" aria-live="polite"></div>
+  </div>
+</section>
+
+
+<!-- ============= PROFESSORES ============= -->
+<!-- ============= PROFESSORES ============= -->
+<section class="section professors-section" id="sobre">
+  <div class="section-inner">
+
+    <div class="prof-criacom-header reveal">
+      <img src="img/logo.png" alt="Logo CRIACOM" class="criacom-logo">
+      <div class="criacom-text">
+        <p class="eyebrow">§ Autoria e Manutenção</p>
+        <h2 class="section-title">Professores <em>responsáveis</em></h2>
+        <p class="section-lead">Esta árvore é produto coletivo da disciplina de pós-graduação <strong>Behaviorismos Modernos</strong>, ministrada no PPGAC-UEL pelo <strong>CRIACOM</strong> — Grupo de Pesquisa em Criatividade e Comportamento.</p>
+      </div>
+    </div>
+
+    <div class="prof-cards reveal">
+
+      <div class="prof-card">
+        <div class="prof-mascot">
+          <img src="img/hern.jpg" alt="Mascote pixel-art de Hernando — professor jogando videogame com gato preto e lâmpada de ideia" class="prof-mascot-img">
+        </div>
+        <div class="prof-info">
+          <h3 class="prof-nome">Hernando Borges Neves Filho</h3>
+          <p class="prof-role">Professor · PPGAC-UEL · CRIACOM</p>
+          <p class="prof-bio">Pesquisador em análise do comportamento, design de jogos comportamentais e behaviorismos contemporâneos. Coordenador do CRIACOM e idealizador desta árvore.</p>
+          <a href="http://lattes.cnpq.br/2700793023719116" class="lattes-link" target="_blank" rel="noopener noreferrer">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Currículo Lattes
+          </a>
+        </div>
+      </div>
+
+      <div class="prof-card">
+        <div class="prof-mascot">
+          <img src="img/yulla.jpg" alt="Mascote pixel-art de Yulla — pesquisadora com cabelo rosa observando rato branco em caixa experimental" class="prof-mascot-img">
+        </div>
+        <div class="prof-info">
+          <h3 class="prof-nome">Yulla Christoffersen Knaus</h3>
+          <p class="prof-role">Professora · PPGAC-UEL · CRIACOM</p>
+          <p class="prof-bio">Pesquisadora em análise experimental do comportamento, cognição comparada e metodologia de sujeito único. Co-diretora do CRIACOM e co-responsável pela disciplina Behaviorismos Modernos.</p>
+          <a href="http://lattes.cnpq.br/3658176432597172" class="lattes-link" target="_blank" rel="noopener noreferrer">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Currículo Lattes
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- ============= BIBLIOGRAPHY ============= -->
+<section class="biblio" id="bibliografia">
+  <div class="section-inner">
+    <p class="eyebrow reveal">§ Fontes</p>
+    <h2 class="section-title reveal">Bibliografia <em>de base</em></h2>
+    <p class="section-lead reveal">Obras que estruturaram a versão consolidada deste compêndio.</p>
+    <ol class="biblio-list reveal" id="biblioList"></ol>
   </div>
 </section>
 
@@ -2580,7 +3028,7 @@ footer .bottom em{ color: var(--gold-light); font-style: normal }
     </div>
   </div>
   <div class="bottom">
-    <em>Árvore dos Behaviorismos</em> · PPGAC-UEL · CRIACOM
+    <em>Árvore dos Behaviorismos</em> · PPGAC-UEL · CRIACOM — Criatividade e Comportamento
   </div>
 </footer>
 
@@ -4283,7 +4731,13 @@ $$(".viewswitch button").forEach(btn => {
     btn.setAttribute("aria-selected", "true");
     const v = btn.dataset.view;
     $("#genealogyView").style.display = v === "genealogy" ? "" : "none";
-    $("#brasilView").style.display    = v === "brasil"    ? "" : "none";
+    $("#dendroView")   .style.display = v === "dendro"    ? "" : "none";
+    $("#brasilView")   .style.display = v === "brasil"    ? "" : "none";
+    /* lazy-build dendro on first visit */
+    if (v === "dendro" && !$("#dendroSvg").dataset.built) {
+      buildDendrograma();
+      $("#dendroSvg").dataset.built = "1";
+    }
   });
 });
 
@@ -4591,118 +5045,94 @@ function buildTree() {
    raízes pré-históricas embaixo. Cada nó é uma sinapse.
    ========================================================= */
 
-const VG_W = 1500, VG_H = 3340;
+const VG_W = 2200, VG_H = 3900;
 
 /* === Posições verticais: y crescente = mais antigo === */
 const VG_LAYOUT = {
-  // ── TOPO DE COPA · novo crescimento — sem conexões ao tronco ──
-  "cognicao-corporeada": { x: 1080, y: 297,  tier: "canopy", level: "major" },
-
-  // ── COPA: behaviorismos contemporâneos (largo, 2 linhas) ──
-  "ribes":           { x: 120,  y: 297,  tier: "canopy" },
-  "rachlin":         { x: 240,  y: 297,  tier: "canopy" },
-  "baum":            { x: 360,  y: 297,  tier: "canopy" },
-  "staddon":         { x: 480,  y: 297,  tier: "canopy" },
-  "timberlake":      { x: 600,  y: 297,  tier: "canopy" },
-  "donahoe":         { x: 720,  y: 297,  tier: "canopy" },
-  "foxall":          { x: 840,  y: 297,  tier: "canopy" },
-  "hayes":           { x: 980,  y: 297,  tier: "canopy", level: "major" },
-  "nca-layng-andronis": { x: 940, y: 448,  tier: "canopy", level: "major" },
-
-  "catania":         { x: 120,  y: 442,  tier: "canopy" },
-  "watanabe":        { x: 240,  y: 442,  tier: "canopy" },
-  "sundberg":        { x: 380,  y: 442,  tier: "canopy" },
-  "tsai-kohlenberg": { x: 520,  y: 442,  tier: "canopy" },
-  "guilhardi":       { x: 660,  y: 448,  tier: "canopy" },
-  "del-prette":      { x: 800,  y: 448,  tier: "canopy" },
-
-  // Cultural / digital / clínica (lado direito da copa)
-  "obm":                  { x: 1130, y: 345, tier: "canopy" },
-  "aba-autismo":          { x: 1180, y: 455, tier: "canopy" },
-  "tecnologia-digital":   { x: 1130, y: 566, tier: "canopy" },
-
-  // ── GALHOS DE CIMA: ABA / pós-skinneriana ──
-  "carolina-bori":   { x: 280,  y: 635,  tier: "upper", level: "major" },
-  "keller-schoenfeld":{ x: 200, y: 745,  tier: "upper", level: "major" },
-  "ferster":         { x: 360,  y: 635,  tier: "upper" },
-  "bijou":           { x: 460,  y: 745,  tier: "upper" },
-  "baer-wolf-risley":{ x: 560,  y: 635,  tier: "upper", level: "major" },
-  "lovaas":          { x: 700,  y: 745,  tier: "upper", level: "major" },
-  "azrin":           { x: 820,  y: 635,  tier: "upper" },
-  "iwata":           { x: 920,  y: 745,  tier: "upper" },
-  "sidman":          { x: 1020, y: 635,  tier: "upper", level: "major" },
-  "goldiamond":      { x: 1070, y: 745,  tier: "upper" },
-  "stevens":         { x: 100,  y: 635,  tier: "upper" },
-  "glenn-biglan-mattaini":{ x: 1170, y:745, tier: "upper", level: "major" },
-
-  // ── BRASIL (épico, à esquerda do tronco superior) ──
-  "brasil":          { x: 200,  y: 897,  tier: "trunk-upper", level: "epic" },
-
-  "sigrid-glenn":    { x: 1100, y: 635,  tier: "upper", level: "major" },
-  "harzem-miles":    { x: 400,  y: 922,  tier: "trunk", level: "major" },
-
-  // ── TRONCO PRINCIPAL: SKINNER ──
-  "carnap-hempel":   { x: 480,  y: 966,  tier: "trunk", level: "phil-small" },
-  "willard-day":     { x: 350,  y: 994,  tier: "trunk", level: "major" },
-  "skinner":         { x: 650,  y: 1007,  tier: "trunk", level: "epic" },
-  "vicki-lee":       { x: 950,  y: 994,  tier: "trunk", level: "major" },
-  "ryle-quine":      { x: 820,  y: 966,  tier: "trunk", level: "phil-small" },
-
-  // ── GALHOS DE BAIXO DO TRONCO: Neobehaviorismos ──
-  "guthrie":         { x: 250,  y: 1201,  tier: "neo" },
-  "hull":            { x: 380,  y: 1201,  tier: "neo", level: "major" },
-  "tolman":          { x: 500,  y: 1201,  tier: "neo", level: "major" },
-  "kantor":          { x: 800,  y: 1201,  tier: "neo", level: "major" },
-  "kuo":             { x: 920,  y: 1201,  tier: "neo" },
-
-  // ── TRONCO INFERIOR: WATSON ──
-  "mead":            { x: 410,  y: 1380, tier: "trunk-lower" },
-  "dashiell-lashley":{ x: 540,  y: 1380, tier: "trunk-lower" },
-  "watson":          { x: 650,  y: 1408, tier: "trunk-lower", level: "epic" },
-  "meyer-weiss-pieron":{ x: 820,y: 1394, tier: "trunk-lower" },
-
-  // ── PRÉ-WATSON · base do tronco ──
-  "titchener":       { x: 200,  y: 1587, tier: "pre-watson" },
-  "filo-moral":      { x: 320,  y: 1587, tier: "pre-watson" },
-  "wundt-leipzig":   { x: 440,  y: 1587, tier: "pre-watson", level: "major" },
-  "james-hall-ladd": { x: 580,  y: 1587, tier: "pre-watson", level: "major" },
-  "funcionalismo":   { x: 720,  y: 1587, tier: "pre-watson", level: "major" },
-  "psi-aplicada":    { x: 860,  y: 1587, tier: "pre-watson" },
-
-  // ── RAÍZES SUPERIORES · pré-história próxima ──
-  "thorndike":       { x: 350,  y: 1780, tier: "roots", level: "major" },
-  "sechenov-pavlov": { x: 540,  y: 1780, tier: "roots", level: "major" },
-  "loeb-jennings":   { x: 760,  y: 1780, tier: "roots" },
-
-  // ── RAÍZES MÉDIAS ──
-  "darwin-morgan":   { x: 260,  y: 1946, tier: "roots", level: "major" },
-  "spalding":        { x: 470,  y: 1946, tier: "roots" },
-  "locke-bain":      { x: 680,  y: 1946, tier: "roots" },
-
-  // ── RAÍZES PROFUNDAS · ponto mais antigo ──
-  "descartes-hartley":{ x: 470, y: 2111, tier: "roots" },
-
-  // ── PONTE RENASCENTISTA ──
-  "francis-bacon":      { x: 540,  y: 2291, tier: "deep-roots", level: "major" },
-
-  // ── MEDIEVO TARDIO ──
-  "escolastica":        { x: 360,  y: 2484, tier: "deep-roots", level: "major" },
-  "agostinho":          { x: 590,  y: 2484, tier: "deep-roots" },
-  "filosofia-islamica": { x: 820,  y: 2484, tier: "deep-roots", level: "major" },
-
-  // ── HELENISMO ──
-  "galeno":             { x: 280,  y: 2684, tier: "deep-roots" },
-  "estoicos":           { x: 500,  y: 2684, tier: "deep-roots", level: "major" },
-  "epicuro-helenistas": { x: 720,  y: 2684, tier: "deep-roots" },
-
-  // ── GRÉCIA CLÁSSICA ──
-  "platao":             { x: 320,  y: 2891, tier: "deep-roots" },
-  "aristoteles":        { x: 560,  y: 2891, tier: "deep-roots", level: "major" },
-  "sofistas":           { x: 780,  y: 2891, tier: "deep-roots" },
-
-  // ── PRÉ-SOCRÁTICOS E MEDICINA ──
-  "hipocrates":         { x: 400,  y: 3112, tier: "deep-roots", level: "major" },
-  "naturalistas-gregos":{ x: 650,  y: 3112, tier: "deep-roots" }
+  "rachlin": { x: 200, y: 160 },
+  "baum": { x: 380, y: 195 },
+  "staddon": { x: 540, y: 160 },
+  "timberlake": { x: 700, y: 210 },
+  "donahoe": { x: 860, y: 165 },
+  "foxall": { x: 1080, y: 195 },
+  "hayes": { x: 1280, y: 155 },
+  "ribes": { x: 1480, y: 195 },
+  "catania": { x: 200, y: 355 },
+  "del-prette": { x: 420, y: 340 },
+  "guilhardi": { x: 640, y: 365 },
+  "tsai-kohlenberg": { x: 860, y: 340 },
+  "banaco-zamignani": { x: 1060, y: 370 },
+  "laurenti-lopes": { x: 1260, y: 345 },
+  "oliveira-castro": { x: 1480, y: 370 },
+  "nca-layng-andronis": { x: 1700, y: 195 },
+  "deisy-souza": { x: 1700, y: 355 },
+  "olavo-galvao": { x: 1880, y: 280 },
+  "sundberg": { x: 1680, y: 510 },
+  "watanabe": { x: 1860, y: 510 },
+  "tecnologia-digital": { x: 2020, y: 175 },
+  "obm": { x: 2020, y: 355 },
+  "keller-schoenfeld": { x: 400, y: 620 },
+  "ferster": { x: 600, y: 670 },
+  "baer-wolf-risley": { x: 820, y: 620 },
+  "sidman": { x: 1060, y: 660 },
+  "goldiamond": { x: 1260, y: 620 },
+  "azrin": { x: 280, y: 760 },
+  "bijou": { x: 460, y: 800 },
+  "lovaas": { x: 660, y: 790 },
+  "iwata": { x: 860, y: 800 },
+  "stevens": { x: 1080, y: 790 },
+  "sigrid-glenn": { x: 1300, y: 760 },
+  "glenn-biglan-mattaini": { x: 1480, y: 780 },
+  "brasil": { x: 280, y: 960 },
+  "carolina-bori": { x: 480, y: 940 },
+  "matos-maria-amelia": { x: 680, y: 970 },
+  "abib-sergio-micheletto": { x: 880, y: 945 },
+  "hernando-neves": { x: 380, y: 1080 },
+  "yulla-knaus": { x: 560, y: 1090 },
+  "tourinho": { x: 740, y: 1065 },
+  "haydu": { x: 920, y: 1085 },
+  "hubner": { x: 1100, y: 1065 },
+  "carnap-hempel": { x: 1700, y: 640 },
+  "ryle-quine": { x: 1880, y: 680 },
+  "willard-day": { x: 1660, y: 790 },
+  "vicki-lee": { x: 1860, y: 830 },
+  "harzem-miles": { x: 1720, y: 930 },
+  "abib-damasio": { x: 1900, y: 960 },
+  "skinner": { x: 1060, y: 1200 },
+  "guthrie": { x: 300, y: 1390 },
+  "hull": { x: 520, y: 1380 },
+  "tolman": { x: 740, y: 1400 },
+  "kantor": { x: 1280, y: 1380 },
+  "kuo": { x: 1520, y: 1420 },
+  "mead": { x: 380, y: 1660 },
+  "dashiell-lashley": { x: 620, y: 1680 },
+  "watson": { x: 900, y: 1700 },
+  "meyer-weiss-pieron": { x: 1200, y: 1670 },
+  "filo-moral": { x: 220, y: 1940 },
+  "wundt-leipzig": { x: 440, y: 1960 },
+  "james-hall-ladd": { x: 680, y: 1940 },
+  "titchener": { x: 900, y: 1970 },
+  "funcionalismo": { x: 1120, y: 1945 },
+  "psi-aplicada": { x: 1360, y: 1965 },
+  "thorndike": { x: 360, y: 2220 },
+  "sechenov-pavlov": { x: 620, y: 2240 },
+  "loeb-jennings": { x: 900, y: 2220 },
+  "darwin-morgan": { x: 300, y: 2390 },
+  "spalding": { x: 560, y: 2400 },
+  "locke-bain": { x: 820, y: 2390 },
+  "descartes-hartley": { x: 560, y: 2560 },
+  "francis-bacon": { x: 560, y: 2720 },
+  "escolastica": { x: 300, y: 2880 },
+  "agostinho": { x: 560, y: 2870 },
+  "filosofia-islamica": { x: 820, y: 2880 },
+  "galeno": { x: 240, y: 3040 },
+  "estoicos": { x: 460, y: 3060 },
+  "epicuro-helenistas": { x: 700, y: 3040 },
+  "platao": { x: 300, y: 3200 },
+  "aristoteles": { x: 560, y: 3200 },
+  "sofistas": { x: 820, y: 3200 },
+  "hipocrates": { x: 380, y: 3400 },
+  "naturalistas-gregos": { x: 680, y: 3400 },
 };
 
 /* === Conexões (parent → child, parent abaixo na árvore) === */
@@ -4862,6 +5292,197 @@ function anyNode(id) {
   return NODES.find(n => n.id === id) || TREE_ONLY[id] || null;
 }
 
+/* =========================================================
+   DENDROGRAMA — leitura horizontal, esquerda → direita
+   Épocas como colunas (sécs. antigos à esquerda, copa à direita).
+   Lê exactamente os mesmos NODES / SECTIONS / VG_CONNECTIONS
+   que o buildGenealogy(); adicionar/mover um nó reflete nos dois.
+   ========================================================= */
+function buildDendrograma() {
+  const svg = $("#dendroSvg");
+  svg.innerHTML = "";
+
+  /* ---- dimensões e geometria ---- */
+  const TIER_ORDER = ["anc","pre","amer","watson","neo","skin","aba","phil","cont","cult"];
+  const COL_W  = 178;   // largura de cada coluna-época
+  const PAD_L  = 30;    // margem esquerda
+  const PAD_T  = 68;    // margem topo (para rótulo)
+  const PAD_B  = 42;
+  const SVG_W  = PAD_L + TIER_ORDER.length * COL_W + 60;
+  const SVG_H  = 1140;
+  svg.setAttribute("viewBox", `0 0 ${SVG_W} ${SVG_H}`);
+  svg.style.width  = SVG_W  + "px";
+  svg.style.height = SVG_H + "px";
+
+  const NS = "http://www.w3.org/2000/svg";
+  const mk = (tag, attrs = {}) => {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  };
+
+  const root = mk("g", { id: "dendroRoot" });
+  svg.appendChild(root);
+
+  /* ---- posições dos nós ---- */
+  const pos = {};
+  TIER_ORDER.forEach((sid, col) => {
+    const x = PAD_L + col * COL_W + COL_W / 2;
+    const ns = NODES.filter(n => n.section === sid);
+    const m  = ns.length;
+    const span = SVG_H - PAD_T - PAD_B;
+    ns.forEach((n, i) => {
+      const y = PAD_T + (m === 1 ? span / 2 : (i / (m - 1)) * span);
+      pos[n.id] = { x, y };
+    });
+  });
+
+  /* ---- fundo: linhas-guia verticais por coluna ---- */
+  const guideLayer = mk("g", { opacity: "0.22" });
+  TIER_ORDER.forEach((sid, col) => {
+    const x = PAD_L + col * COL_W + COL_W / 2;
+    guideLayer.appendChild(mk("line", {
+      x1: x, y1: PAD_T - 14, x2: x, y2: SVG_H - PAD_B + 8,
+      stroke: sectionColor(sid), "stroke-width": "1", "stroke-dasharray": "2 5"
+    }));
+  });
+  root.appendChild(guideLayer);
+
+  /* ---- rótulos de coluna (época) ---- */
+  const labLayer = mk("g");
+  TIER_ORDER.forEach((sid, col) => {
+    const sec = SECTIONS.find(s => s.id === sid);
+    if (!sec) return;
+    const x = PAD_L + col * COL_W + COL_W / 2;
+    const color = sectionColor(sid);
+
+    /* bloco de fundo arredondado */
+    const badge = mk("rect", {
+      x: x - 26, y: 8, width: 52, height: 46,
+      rx: 5, fill: color, opacity: "0.15"
+    });
+    labLayer.appendChild(badge);
+
+    /* romano */
+    const rom = mk("text", {
+      x, y: 30, "text-anchor": "middle",
+      "font-family": "var(--font-display)", "font-size": "14",
+      "font-weight": "700", fill: color
+    });
+    rom.textContent = sec.roman;
+    labLayer.appendChild(rom);
+
+    /* período curto */
+    const per = mk("text", {
+      x, y: 46, "text-anchor": "middle",
+      "font-family": "var(--font-sc)", "font-size": "7.5",
+      "letter-spacing": ".1em", fill: color, opacity: ".85"
+    });
+    per.textContent = (sec.period || "").split("–")[0].trim() || sec.period || "";
+    labLayer.appendChild(per);
+  });
+  root.appendChild(labLayer);
+
+  /* ---- conexões (dendritos) — curvas horizontais ---- */
+  const linkLayer = mk("g", { id: "dendroLinks" });
+  VG_CONNECTIONS.forEach(([fromId, toId, weight]) => {
+    const a = pos[fromId], b = pos[toId];
+    if (!a || !b) return;
+    const isMajor = weight === "major";
+    /* curva de Bézier horizontal: parte de x=a.x em y=a.y, chega em x=b.x em y=b.y */
+    const mx = (a.x + b.x) / 2;
+    const d  = `M${a.x},${a.y} C${mx},${a.y} ${mx},${b.y} ${b.x},${b.y}`;
+    const path = mk("path", {
+      d, fill: "none",
+      stroke: isMajor ? "rgba(110,86,56,.52)" : "rgba(110,86,56,.18)",
+      "stroke-width": isMajor ? "1.8" : "1",
+      "stroke-linecap": "round"
+    });
+    linkLayer.appendChild(path);
+  });
+  root.appendChild(linkLayer);
+
+  /* ---- nós (sinapses) ---- */
+  const nodeLayer = mk("g", { id: "dendroNodes" });
+  Object.entries(pos).forEach(([id, p]) => {
+    const node = anyNode(id);
+    if (!node) return;
+    const level = node.level || "std";
+    const color = sectionColor(node.section || "pre");
+    const r = level === "epic" ? 15 : level === "major" ? 9 : 6;
+
+    const gPos = mk("g", { transform: `translate(${p.x},${p.y})` });
+    const g    = mk("g", { class: `synapse ${level}`, tabindex: "0",
+                            role: "button", "aria-label": node.name });
+    g.dataset.id = id;
+
+    /* halo épico */
+    if (level === "epic") {
+      g.appendChild(mk("circle", {
+        class: "pulse", r: r + 12, fill: color, opacity: "0.10"
+      }));
+      g.appendChild(mk("circle", {
+        r: r + 6, fill: "none", stroke: color,
+        "stroke-width": "1", "stroke-dasharray": "2 3", opacity: "0.5"
+      }));
+    }
+    if (level === "major") {
+      g.appendChild(mk("circle", { r: r + 3, fill: color, opacity: "0.18" }));
+    }
+
+    g.appendChild(mk("circle", {
+      class: "core", r,
+      fill: "var(--paper)", stroke: color, "stroke-width": "2"
+    }));
+
+    if (level === "epic")   g.appendChild(mk("circle", { r: r - 6, fill: color }));
+    else if (level === "major") g.appendChild(mk("circle", { r: r - 4, fill: color, opacity: ".55" }));
+    else                        g.appendChild(mk("circle", { r: r - 3, fill: color, opacity: ".35" }));
+
+    /* rótulo — acima ou abaixo para evitar sobreposição com linha-guia */
+    const labelText = nodeShortLabel(node);
+    const lines     = wrapLabel(labelText, level === "epic" ? 14 : 16);
+    const labelY    = -(r + 8 + (lines.length - 1) * 13); // acima do nó
+    const fSize     = level === "epic" ? 14 : level === "major" ? 11.5 : 10;
+    lines.forEach((line, li) => {
+      const t = mk("text", {
+        class: "label",
+        x: 0, y: labelY + li * (fSize + 2.5),
+        "font-size": fSize,
+        "text-anchor": "middle",
+        fill: "var(--ink)"
+      });
+      t.textContent = line;
+      g.appendChild(t);
+    });
+
+    const title = mk("title", {});
+    title.textContent = `${node.name} — ${node.period || ""}`;
+    g.appendChild(title);
+
+    /* navegação: "brasil" abre aba; demais abrem modal */
+    if (id === "brasil") {
+      g.addEventListener("click", () => {
+        const btn = document.querySelector('.viewswitch button[data-view="brasil"]');
+        if (btn) btn.click();
+      });
+    } else {
+      g.addEventListener("click",    ()  => openModal(id));
+      g.addEventListener("keypress", ev  => { if (ev.key === "Enter" || ev.key === " ") openModal(id); });
+    }
+
+    gPos.appendChild(g);
+    nodeLayer.appendChild(gPos);
+  });
+  root.appendChild(nodeLayer);
+
+  /* ---- pan & zoom ---- */
+  setupPanZoom(svg, root, {
+    btnIn: "#denZoomIn", btnOut: "#denZoomOut", btnReset: "#denReset",
+    skipClass: ".synapse", vbW: SVG_W, vbH: SVG_H
+  });
+}
+
 function buildGenealogy() {
   const svg = $("#genealogySvg");
   svg.innerHTML = "";
@@ -4875,41 +5496,34 @@ function buildGenealogy() {
   // tronco da árvore que passa do meio-baixo (raízes) ao topo (copa)
   // largura varia: estreita no centro (Watson/Skinner), larga nas extremidades
   const trunkPath = `
-    M 280 1620
-    C 350 1500, 450 1300, 500 1100
-    C 550 1000, 600 900, 620 770
-    C 635 700, 645 600, 640 500
-    C 630 380, 580 280, 480 150
-    L 480 0
-    L 820 0
-    L 820 150
-    C 720 280, 670 380, 660 500
-    C 655 600, 665 700, 680 770
-    C 700 900, 750 1000, 800 1100
-    C 850 1300, 950 1500, 1020 1620 Z
+    M 380 1820
+    C 450 1650, 600 1450, 780 1280
+    C 870 1200, 940 1200, 1000 1200
+    C 1040 1200, 1080 1200, 1120 1200
+    C 1180 1200, 1260 1200, 1340 1280
+    C 1520 1450, 1660 1650, 1720 1820
+    L 1720 3900 L 380 3900 Z
   `;
   const trunkBand = el("path", { d: trunkPath, class: "trunk-band" });
   root.appendChild(trunkBand);
 
   /* === Tier labels (canopy / trunk / roots / deep-roots) === */
-  const tiers = [
-    { y: 48,    label: "GALHOS · ANÁLISE DO COMPORTAMENTO PÓS-SKINNER" },
-    { y: 414,   label: "COPA · BEHAVIORISMOS CONTEMPORÂNEOS" },
-    { y: 559,   label: "GALHOS · ABA E INSTITUCIONALIZAÇÃO" },
-    { y: 925,   label: "TRONCO · BEHAVIORISMO RADICAL · SKINNER" },
-    { y: 1132,   label: "GALHOS BAIXOS · NEOBEHAVIORISMOS" },
-    { y: 1325,   label: "TRONCO INFERIOR · BEHAVIORISMO CLÁSSICO · WATSON" },
-    { y: 1532,  label: "BASE · PSICOLOGIA NORTE-AMERICANA PRÉ-1913" },
-    { y: 1725,  label: "RAÍZES · FISIOLOGIA, COMPARADA, EMPIRISMO" },
-    { y: 2194,  label: "✦  RAÍZ PROFUNDA · MECANICISMO CARTESIANO" },
-    { y: 2236,  label: "─── PONTE RENASCENTISTA ───" },
-    { y: 2415,  label: "MEDIEVO · ESCOLÁSTICA E FILOSOFIA ISLÂMICA" },
-    { y: 2608,  label: "HELENISMO · ESTOICOS, EPICURO E GALENO" },
-    { y: 2822,  label: "GRÉCIA CLÁSSICA · ARISTÓTELES, PLATÃO E SOFISTAS" },
-    { y: 3043,  label: "✦  RAÍZES MAIS PROFUNDAS · PRÉ-SOCRÁTICOS E HIPÓCRATES" }
+    const tiers = [
+    { y:  80,  label: "COPA · BEHAVIORISMOS CONTEMPORÂNEOS" },
+    { y: 470,  label: "GALHOS ALTOS · ANÁLISE CLÍNICA E APLICADA" },
+    { y: 590,  label: "GALHOS · ABA E INSTITUCIONALIZAÇÃO" },
+    { y: 1000, label: "SUB-GALHO · AC NO BRASIL" },
+    { y: 1150, label: "TRONCO · BEHAVIORISMO RADICAL · SKINNER" },
+    { y: 1350, label: "GALHOS BAIXOS · NEOBEHAVIORISMOS" },
+    { y: 1670, label: "TRONCO INFERIOR · BEHAVIORISMO CLÁSSICO · WATSON" },
+    { y: 1910, label: "BASE · PSICOLOGIA NORTE-AMERICANA PRÉ-1913" },
+    { y: 2200, label: "RAÍZES · FISIOLOGIA, COMPARADA, EMPIRISMO" },
+    { y: 2700, label: "MEDIEVO · RENASCIMENTO · MECANICISMO CARTESIANO" },
+    { y: 3020, label: "HELENISMO E GRÉCIA CLÁSSICA" },
+    { y: 3380, label: "✦  RAÍZES MAIS PROFUNDAS · PRÉ-SOCRÁTICOS E HIPÓCRATES" }
   ];
   tiers.forEach(t => {
-    const tx = el("text", { x: 680, y: t.y, class: "genealogy-tier-label" });
+    const tx = el("text", { x: 1100, y: t.y, class: "genealogy-tier-label" });
     tx.textContent = t.label;
     root.appendChild(tx);
   });
@@ -5935,10 +6549,18 @@ function setupReveal() {
    INIT
    ========================================================= */
 buildGenealogy();
-buildBrasilView();
+// buildBrasilView(); // substituída pelo mapa SVG estático
+
+/* ── PPG map markers: click = open link ── */
+document.querySelectorAll('.ppg-marker[data-url]').forEach(g => {
+  g.setAttribute('role','link');
+  g.setAttribute('tabindex','0');
+  g.addEventListener('click', () => window.open(g.dataset.url,'_blank','noopener'));
+  g.addEventListener('keypress', e => { if(e.key==='Enter'||e.key===' ') window.open(g.dataset.url,'_blank','noopener'); });
+});
 buildChapters();
 buildPractice();
-buildGlossary();
+// buildGlossary(); // seção removida
 buildBiblio();
 
 // Re-mark new content as reveal targets
@@ -6974,6 +7596,95 @@ const MARGINALIA = {
   ],
   "2026": []
 };
+/* --- Turma 2023 · capítulos adicionais V–VII (Foxall · Hayes · Ribes-Iñesta) --- */
+MARGINALIA["2023"] = MARGINALIA["2023"].concat(
+[
+    {"part": 5, "student": "João Vitor Oliveira Maldonado", "page": "", "excerpt": "In its contribution to the initial stage of the research program, the BPM employs a radical behaviorist depiction of consumer activity for two reasons: frst, to establish the extent to which a noncognitive model can uniquely elucidate this aspect of human activity and, second, to identify the points at which such an extensional account breaks down and requires the development of an intentional theory of choice”. (p. 154).", "comment": "O autor aponta que existem três fases para se compreender o comportamento do consumidor e a “intencionalidade” não pode ser compreendida apenas com parâmetros behavioristas, mas com análises acerca da “intenção” do consumidor. Mas aí fica a questão, porque se chamar “behaviorismo”, se análise do comportamento toma um “papel secundário” no método empregado? Qual seria o objetivo de descrever a “intencionalidade” por “construtos mentais” ou explicações “cognitivas” sendo que a descrição do comportamento demonstra de forma clara, perceptível, com dados, o porque um organismo escolhe “tomar uma decisão”?"},
+    {"part": 5, "student": "Julia Guimarães de Souza", "page": "153", "excerpt": "[...] Rather, our concern is with how the context within which consumer choice occurs, broadly speaking what behavioral psychology calls the contingencies of reinforcement and punishment, rewards, and sanctions, relates to the mental processes that guide or at least provide the explanation for consumers’ actions.", "comment": "Achei que o Behaviorismo Intencional nos leva a cair em explicações cognitivistas para o comportamento. Se entendermos bem quais programas de reforço estão envolvidos na manutenção daquele comportamento, por exemplo, então teremos uma explicação de porque o indivíduo se comporta como se comporta. Não é necessário \"apelar\" para causas internas, como desejos, crenças e percepções do \"consumidor\". Sabemos que pensamentos/sentimentos/emoções são considerados em uma análise (afinal, são comportamentos encobertos), mas eles não causam comportamentos. O autor fala que o Behaviorismo Intencional está interessado nas \"ações do consumidor\" e que o Behaviorismo Radical é utilizado apenas no início da análise, até que ele sozinho não seja mais capaz de explicar as escolhas do consumidor, então assim começa-se a utilizar das crenças, desejos etc. Será que faz sentido levar o nome de Behaviorismo? (confesso que fiquei incomodada com esse Behaviorismo)"},
+    {"part": 5, "student": "Julia Guimarães de Souza", "page": "203", "excerpt": "[...] In the present chapter (Foxall, 2021), however, it seems that the author accepts the interpretation that intentional objects exist in the mind and that the investigation should shift from the analysis of environmental contingencies to the analysis of mental representation of these contingencies.", "comment": "Foi exatamente dessa forma que interpretei ao ler o capítulo de Foxall, até por isso me questionei se realmente faz sentido ser chamado de Behaviorismo. Quando Oliveira-Castro comentou que em outros trabalhos Foxall tomou muito cuidado para deixar claro que ele não estava dizendo que \"coisas da mente\" causam comportamento, fiquei pensando \"nesse capítulo ele esqueceu de deixar isso claro\"."},
+    {"part": 5, "student": "Júlio Abner S. Aranha", "page": "161", "excerpt": "Theoretical minimalism therefore entails building parsimonious, behaviorist models of behavior and testing them to destruction in order to ascertain the point at which an intentional account becomes necessary and the form it must take.", "comment": "O modo como Foxall aborda o modelo explicativo do Behaviorismo Intencional me faz questionar se o que ele está propondo é realmente uma vertente do behaviorismo, tendo em vista que a introdução da \"intenção\" como variável explicativa pode parecer uma concessão aos construtos internos, e essa é uma abordagem geralmente rejeitada por essa corrente filosófica. Penso também que introduzir a intencionalidade como fator explicativo é um tanto arriscado para uma ciência do comportamento, considerando que a introdução de intenções e estados mentais pode desviar a atenção do exame das relações funcionais entre o comportamento e o ambiente."},
+    {"part": 5, "student": "Andressa Secchi Silveira", "page": "198", "excerpt": "There is a tendency in behavior analysis to avoid using mentalistic concepts and little effort to understand how they function and how they are used and employed in language, that is, what the verbal contingencies for their uses are. This posture may hinder the development of certain research themes in behavior analysis. They do not refer to mental mysterious events, but have complex uses that have several other functions, some of which involve the description of capacities and tendencies of behaving (see, for instance, Ryle, 1949, and Hacker, 2013)", "comment": "Achei essencial essa pontuação, ilustra bem a possibilidade de aderir aos princípios filosóficos mesmo quando a situação fica difícil, em vez de sair praticando um ecleticismo conceitual porque ficou difícil explicar algum fenômeno. Concordo com os colegas que se a limitação do behaviorismo em um determinado contexto ou nível de análise é percebida como tão insuperável, talvez estejamos deixando de falar de behaviorismo, e falando de algo mais, talvez ciência cognitiva mesmo (que nunca deixou de usar métodos comportamentais para chegar a conclusões mentalistas, e com significativa efetividade, pelo menos nos contextos de psicoterapia). Estudar como os termos são utilizados parece ser mais coerente do que começar a adotar termos imprecisos tão prontamente porque eles são usados dentro de alguma outra disciplina. Mas não sei o que fazer com a afirmação do Foxall de que comportamento verbal é necessariamente intencional... essa passou por cima da minha cabeça porque \"comportamento\" \"intencional\" pra mim é um oxímoro (devido a ter sido treinada principalmente em behaviorismo radical desde o início da graduação)."},
+    {"part": 5, "student": "Andressa Félix Ferreira", "page": "191", "excerpt": "While behavior is explicable by reference to the antecedent and consequential stimuli through which it can be predicted and influenced, action lacks such a stimulus\nfield and is accounted for in terms of the actor’s desires, beliefs, emotions, and perceptions.\" (p.153) \"One of the main characteristics of any movement or proposal self-named behaviorism is a major concern with the old philosophical mind-body problem", "comment": "O pensamento dele me faz lembrar um pouco os preceitos da TCC ao se basear na ideia de comportamento do Behaviorismo com elementos mentalistas do cognitivismo. A questão é que não me é necessario a adição desses elementos para que o fenomeno possa ser explicado, parencendo mais um equivoco na compreensão do BR."},
+    {"part": 5, "student": "Wildson Cardoso Assunção", "page": "161", "excerpt": "The stage of intentional interpretation demonstrates whether consumer activity that is not amenable to an extensional behaviorist explication can be satisfactorily accounted for in intentional terms. If this proves to be the case, the fnal stage, cognitive interpretation, critically examines the feasibility of the intentional interpretation as a means of understanding consumer choice. In the course of moving from the frst stage of theoretical minimalism to the subsequent stages of psychological explanation (...)", "comment": "se a atividade do consumidor, que não é passível de explicação comportamental extensional, pode ser adequadamente explicada em termos intencionais? Quê? Isso é tão cognitivista que minha mente doeu. Só do cara dizer que algo não pode mais ser explicado ele já tá viajando. Se é difícil de explicar, o cientista deve correr atrás, ora. E não criar um modelo para justificar", "reply": "Para mim ficou parecendo algo do tipo \"Se o BR não explica, vamos juntar com uma outra área (completamente diferente), para responder essa questão. hahahah\n\nThayná"},
+    {"part": 5, "student": "Thayná Krueger", "page": "", "excerpt": "The model accommodates behaviorist, intentional, and cognitive perspectives to portray consumer choice, frst, as the outcome of the rewards and sanctions that are the consequences of behavior and, subsequently, as a mode of human action that must be understood in terms of the desires, beliefs, emotions, and perceptions of the consumer and her intellectual functioning (p. 152).\"\n\n\"The methodology of intentional behaviorism exploits the tension between the behaviorist and cognitive perspectives, viewing each as indispensable to the other (p. 154).\"\n\n\"Action, then, is activity for which we are unable to establish antecedent stimuli that would account for it by making it amenable to prediction and control. Action\nmust be accounted for in terms of the intentionality of the individual, her desires, beliefs, emotions, and perceptions, as we reconstruct them from our knowledge of her historical and current circumstances (p. 167).", "comment": "Escolhi esses trechos no texto, pois tive a impressão de que o autor está 'exigindo' uma colaboração entre o Behaviorismo Radical e a psicologia cognitiva para explicar o comportamento. A meu ver, ele constantemente argumenta que o Behaviorismo Radical não oferece respostas suficientes para abordar a relação temporal do reforço, sugerindo que uma integração com a psicologia cognitiva poderia solucionar esse problema por meio da intencionalidade.", "reply": "Exatamente, se esse for o caso, ele deve procurar as respostas, de preferencia começando pelos detalhes para depos explicar a tal complexidade. Recorrer pra outras áreas assim desqualifica a ciência. Uma coisa é apontar lacunas, outra coisa é misturar conceitos na busca por respostas. Isso até pode acontecer, mas nem sempre funciona\n\nwildson"},
+    {"part": 5, "student": "Julia Röcker dos Santos", "page": "", "excerpt": "Foxall stresses that it is common to fnd in the behavior-analytic literature explanations grounded on possible learning experience that the individual organism might have had or on possible private events, in the form of covert responses, that might have occurred, which are said to have increased response probability. Foxall has criticized such explanatory practice, for, he has argued, there is no empirical basis to infer the antecedent or private events, as there is in non-human laboratory experiments, where the organism’s previous experiences are entirely nown. This type of post hoc explanations that presupposes the occurrence of events that would be necessary to explain the phenomena is seen distrustfully by Foxall, as attempts to save the theory. In several of his writings, the author even asserts that this practice represents intellectual dishonesty (cf. Foxall, 2016a, p. 26, p. 113; Foxall, 2020, p. 186, p. 217).", "comment": "Entendo as críticas de Foxall com relação ao uso da história comportamental como fonte de explicação para alguns comportamentos do indivíduo... contudo, existe uma ampla área de pesquisa dedicada a produzir evidências empíricas sobre como a história comportamental pode influenciar no comportamento \"presente\" de um organismo, então achei um pouco de \"emoção\" dizer que \"não existe base empírica\" para inferir eventos antecedentes... Como ele cita ali \"as there is in non-human laboratory experiments, where the organism's previous experiences are entirely known\", entendi que talvez a crítica se dirija a estender os resultados do laboratório para a aplicação com humanos. Ainda assim, respeitando suas críticas, não consigo entender muito bem como as propostas de Foxall sobre incluir os conceitos de \"desejos, crenças, emoções e percepções\", ou de \"intencionalidade\" nas explicações para o comportamento do consumidor ou as escolhas de um indivíduo são menos inferência do que atribuir as explicações à história de aprendizagem."},
+    {"part": 5, "student": "Letícia de Assis Pereira Jardim", "page": "153", "excerpt": "While behavior is explicable by reference to the antecedent and consequential stim-\nuli through which it can be predicted and infuenced, action lacks such a stimulus\n\nfeld and is accounted for in terms of the actor’s desires, beliefs, emotions, and\nperceptions. But this does not imply that consumer action is context-free. Rather,\nour concern is with how the context within which consumer choice occurs, broadly\nspeaking what behavioral psychology calls the contingencies of reinforcement and\npunishment, rewards, and sanctions, relates to the mental processes that guide or at\nleast provide the explanation for consumers’ actions. The stepping-off point is the\ndelineation of consumer choice as activity that entails temporal confict between\n\nalternative courses of action which differ in their objective and psychological evalu-\nation. This understanding of consumer choice is an important element in what\n\nmakes action action.", "comment": "Ao substituir a palavra comportamento por ação, Foxall busca trazer uma explicação internalista/mentalista para as escolhas do consumidor. Ao mesmo tempo que aproveita o contexto e as noções behavioristas de reforço e punição me parece estar muito mais próximo de um cognitivismo ao alegar que as explicações externalistas não seriam suficientes."},
+    {"part": 5, "student": "Caique Magalhães", "page": "152", "excerpt": "The model accommodates behaviorist, intentional, and cognitive perspectives\nto portray consumer choice, first, as the outcome of the rewards and sanctions\nthat are the consequences of behavior and, subsequently, as a mode of human\naction that must be understood in terms of the desires, beliefs, emotions, and perceptions\nof the consumer and her intellectual functioning.", "comment": "Existe uma expressão ótima em inglês pra isso aqui: ''pick a lane!'' - a impressão é que ele tá com o carrinho dele dirigindo em três faixas ao mesmo tempo e atrapalhando o trânsito todo..."},
+    {"part": 5, "student": "Caique Magalhães", "page": "", "excerpt": "This\nstage, based on a research strategy of theoretical minimalism, continues apace for\nwhat it reveals of the relation of consumer behavior to its environmental determinants.\nBut, at the same time, we are moving on.", "comment": "Minimalismo teórico propondo modelos cognitivos?"},
+    {"part": 5, "student": "Caique Magalhães", "page": "153", "excerpt": "The construction of the intentional consumer\nsituation requires concepts that indicate how the individual represents the\ncontingencies of reinforcement and punishment that have provided the context for\nprevious patterns of consumer choice and those that currently signal the probable\noutcomes of continued consumer actions", "comment": "'como o indivíduo representa as contingências'' parece colocar o aspecto relacional e contextual do comportamento enquanto fenômeno dentro de um saquinho e enfiar ele na tal da caixa-preta...."},
+    {"part": 5, "student": "Caique Magalhães", "page": "212", "excerpt": "The point I wish to emphasize, however, is that we do not sometimes have to\ninterpret our observations: rather, we always must do so. Even an extensional\naccount of behavior interprets its subject matter. There are after all no stimuli and\nresponses out there in the world; there are only events, some of which precede others, some of which can be said to be functions of others.", "comment": "Achei um ponto interessante e condizente com a ideia que chamamos de ciência nada mais é que o comportamento do cientista, e deve ser olhado como tal. Mas partir de limitações já percebidas e que têm alternativas dentro da proposta behaviorista radical pra adoção de um modelo cognitivista não está dentro dessa ''margem de erro'', ele está usando a análise do comportamento enquanto procedimento e deixando de lado, traindo a filosofia que a embasa."},
+    {"part": 5, "student": "Felipe Boldo Martins", "page": "", "excerpt": "The methodology of intentional behaviorism exploits the tension between the behaviorist and cognitive perspectives, viewing each as indispensable to the other. At the heart of this intentional behaviorist research strategy is the behavioral perspective model (BPM) which can assume behaviorist, intentional, and cognitive perspectives with the aim of rendering consumer activity increasingly intelligible as its empirical base is first explored directly and then through the ascribed phenomenology of the consumer. In its contribution to the initial stage of the research program, the BPM employs a radical behaviorist depiction of consumer activity for two reasons: first, to establish the extent to which a noncognitive model can uniquely elucidate this aspect of human activity and, second, to identify the points at which such an extensional account breaks down and requires the development of an intentional theory of choice. This delineation of the BPM is based on behavior analysis, a school of psychology that relates the rate at which behavior occurs to the nature of the consequences that similar behavior has generated in the past. Behavior analysis\" (p. 154).", "comment": "A primeira pergunta que eu me fiz nesse parágrafo foi \"por que as perspectivas behavioristas e cognitivas são indispensáveis uma para a outra?\". As duas só seriam indispensáveis se fossem, de fato, complementares, como parece propor Foxall (2021). No entanto, não parece ser o caso. Fiquei com a impressão de que o objetivo da BPM, ao identificar limites na análise behaviorista radical, acaba sendo uma justificativa para o ecletismo teórico e uma justificativa para adesão ao mentalismo ou cognitivismo no escopo das ciências comportamentais. Isso parece recair naquelas constantes críticas de que o Behaviorismo Radical seria superficial, pois lida \"apenas\" com o comportamento que é a parte menos profunda e complexa da psicologia humana - críticas que Skinner (1974) buscou responder no livro About Behaviorism há tempos atrás."},
+    {"part": 5, "student": "Annie Wielewicki", "page": "", "excerpt": "The key to the progress of this research program, the generation of its empirical\nfoundation, and its capacity to enhance interdisciplinary understanding of human\nbehavior is the behavioral perspective model (p.154).", "comment": "Me questiono sobre esse modo de compreensão interdisciplinar. De que maneira behaviorismo e cognitivismo poderiam ser conhecimentos complementares? Concordo com Felipe Boldo, que mais parece uma justificativa para adoção do mentalismo."},
+    {"part": 5, "student": "Leticia Batista de Lima", "page": "199", "excerpt": "Another point that calls attention in Foxall’s proposition is the tendency to conclude\nthat there are insurmountable epistemological limitations in behavior analysis in \ncontexts where absence of empirical evidence seems to be the problem.", "comment": "Compreendo a crítica do Foxall sobre a dificuldade de ter acesso ao histórico comportamental dos indivíduos, e como isso pode atrapalhar e atrasar uma pesquisa, mas a sugestão do autor não me parece nem mesmo behaviorista. Ele critica uma suposta \"desonestidade\" da Análise do Comportamento ao mesmo tempo que tenta encaixar uma teoria avessa ao behaviorismo dentro do escopo da Análise do Comportamento. Ao criticar certa limitação epistemológica do behaviorismo, ele sugere passar a se falar em termos de intencionalidade como uma forma de explicação. Acontece que essa intencionalidade parece não ser suficiente, pois exigirá ainda mais explicação, e isso terá que ser realizado a partir de experimentações, exatamente como uma leitura do histórico comportamental exigiria. Dificuldade e \"dar trabalho\", no sentido de exigir mais investigações e dados, parece que será uma realidade das duas abordagens, com a diferença de que uma delas tem uma produção substancial para embasar suas explicações. Dito isso, tenho curiosidade para ver como essa \"intencionalidade\" é trabalhada nas pesquisas e o quão eficaz é."},
+    {"part": 5, "student": "Lenise Santos Ghisi", "page": "194", "excerpt": "When it is not possible to detect each element of the three-term contingency, the tendency in behavior anal- ysis is, then, to suppose that certain learning experiences occurred, or that private verbal behavior, in the form of rules, occurred, or that something occurs physiologi- cally within the individual, which is the task of the physiologist to investigate. These are interpreted by Foxall as attempts to save the theory due to the refusal of employ- ing intentional language.” (Oliveira-Castro, 2021, p. 193)\n\n“A third main problem related to radical behaviorist approach, according to Foxall, is the absence of limits for the interpretation of behavior outside the labora- tory. There is no methodology of interpretation that defines how one can plausibly identify discriminative stimuli, operant classes, and reinforcing and punishing con- sequences, when analyzing complex behavior in open settings, where it is impossi- ble to test such relations experimentally and to obtain information concerning the person’s learning history and, consequently, the functions of events in the setting.” (Oliveira-Castro, 2021", "comment": "Foxall (2021) questiona os limites da abordagem analítica-comportamental para explicar e interpretar o comportamento complexo em ambientes naturais. O autor sugere que tais limites poderiam ser superados pelo uso da linguagem intencional como complemento à uma abordagem analítica-comportamental, por exemplo, por meio da adoção de desejos, crenças, emoções e percepções da pessoa sobre o comportamento que se deseja explicar. Não ficou claro para mim, de que forma e em que medida o recurso a conceitos mentalistas poderia ser utilizado para a explicação do comportamento sem descaracterização de pressupostos epistemológicos de uma ciência do comportamento."},
+    {"part": 5, "student": "Beatriz Ramos Santiago", "page": "", "excerpt": "There is no methodology of interpretation that defines how one can plausibly identify discriminative stimuli, operant classes, and reinforcing and punishing con- sequences, when analyzing complex behavior in open settings, where it is impossi- ble to test such relations experimentally and to obtain information concerning the person’s learning history and, consequently, the functions of events in the setting.", "comment": "As criticas do Foxall (2011) parecem fazer sentido no moomemnto em que o autor critica uma ideia da dependencia do controle do estimulos para explicacao do comportamento e da triplice contingencia. O autor reflete sobre outras ferramentas metodol[ogicas para explicar o comportamento, o que causa estranheza para quem é acostumado com uma logica skinneriana, porque é dif[icil pensar sobre comportamento sem admitir a relacao organismo/ ambiente, ou apenas dificil superar esta logica mais basica. As extrapalacoes metodol[ogicas do behaviorismo skinneriano ao falar de eventos privados e autoregras tamb[em fazem sentido quando pensamos numa investigacao mais rigorosa acerca da realidade para fora do laboratorio, alem da fragilidade notada para padroes de comportamento apresentados que nao sao condizentes com as contingencias vigentes"},
+    {"part": 5, "student": "Bruno Teixeira Silva", "page": "", "excerpt": "Earlier expositions of intentional behaviorism have concentrated on desires and beliefs as the central intentional components of explanations of such behavior (Foxall, 2016a, b). In this chapter and the two which follow it, we expand this methodology by concentrating on perception and emotion. This progression is consistent with the fact that, while theoretical minimalism (leading to behaviorological explanation) is concerned with the individual’s behavior, bodily movement or activity that results from what happens or has happened to her, psychological explanation is concerned with action, bodily movement which the individual performs\" (p. 162).", "comment": "Achei válida as críticas, mas parece incoerente advogar a necessidade de focar no comportamento atual, sobretudo em ações do indivíduo, e não levar em consideração (como quase uma defesa através do minimalismo teórico) a história comportamental. Além de ignorar uma história de estudos que produziram evidências robustas para tal fenômeno."},
+    {"part": 5, "student": "Rafaela Glaser Garcia", "page": "", "excerpt": "According to Foxall, one of the main characteristics of radical behaviorism has\nbeen the exclusive adoption of extensional language, with the consequent rejection\nof intentional language. In his view, this produces limitations to the type of explanation\nthat is offered by behavior analysis. After testing the limits of this kind of\nextensional explanations, the author defends that when it is not possible to explain\nbehavior on the basis of antecedent and consequent events—no stimulus in the context,\nin open settings, not knowing the individual’s learning history—then the\nbehavior-analytic explanation breaks down, and it becomes imperative to add intentional\nidiom, including, for example, ascription of desires and beliefs to the person\nwhose behavior one wants to explain.", "comment": "-Quando não conseguimos achar as variáveis antecedentes ou consequentes do comportamento, muito provavelmente conseguimos analisar na história de vida daquele indivíduo contingências de reforçamento que explicam o comportamento presente. Também podemos considerar que nossa avaliação não está sendo bem feita, talvez não levando em consideração questões culturais presentes que influenciam a ocorrência do comportamento (por exemplo o comportamento do consumidor tem uma grande influência das propagandas e mídias sociais) que podem passar despercebidas pelo analista se o mesmo não é familiarizado com essas variáveis. Explicar um comportamento através da \"vontade de comprar ou de ter determinada coisa\" pode parecer válida dentro da área de comportamento do consumidor. Porém quando olhamos para o contexto educacional por exemplo, e dizemos \"a criança não presta atenção na aula porque não tem vontade de estudar\" já não parece ser uma explicação cabível, não observando as OM e demais variáves que podem estar influênciando sua ocorrência. Não acho ruim a teoria do Foxall, só acho que ele ficou muito focado em um contexto e sua teoria não cabe sendo generalizada para os demais contextos."},
+    {"part": 5, "student": "Gabriela Sabino", "page": "", "excerpt": "The first phase of the intentional behaviorist research strategy, consumer behavior analysis, has accomplished the necessary model building, testing, and evaluation for deciding where intentional, including cognitive, explanation is essential, the form it needs to take, and the functions it needs to perform (Foxall, 2017) (p. 152).", "comment": "Achei o capítulo do Foxall curioso. Começa um pouco confuso e parece cheio de \"firula\", como alguém tentando romantizar o que está falando. Ele deve ter muito carinho pelo trabalho dele (eu também teria), mas isso me chamou a atenção.\nSeparei esse trecho, que é bem do começo, para falar do movimento que ele parece fazer para aproximar behaviorismo e cognitivismo. Diferente do Hayes, que justifica esse movimento, eu não senti tanta segurança no cap. do Foxall. Pareceu mais um \"vou usar porque preciso de uma explicação para o que está rolando\". Lendo o comentário de Oliveira-Castro, vi que não fui só eu quem teve essa impressão. \nConsidero que o tema de Foxall é bem interessante, até para pensar em outros tipos de compulsão, mas já temos trabalhos em análise do comportamento que dão conta desses temas sem a necessidade de explicações cognitivistas. Talvez aproximar o estudo dele destes outros estudos seja mais proveitoso."},
+    {"part": 5, "student": "Isabelle Wünsche Risolia", "page": "161", "excerpt": "When a satisfactory explanation of observed\nbehavior cannot be made by treating it as a component of a set of contingencies of\nreinforcement that also includes discriminative and reinforcing/punishing stimuli,\nthe point at which the stimulus field necessary for a behaviorist explanation is not\nempirically available to the researcher, psychological explanation becomes inevitable.\nThis leads into the second stage, intentional interpretation, in which an\naccount of the stimulus-free behavior proceeds by treating it as an idealized system\nwhich maximizes utility and ascribing to it the intentionality—desires, beliefs, emotions,\nand perceptions—necessary to render it intelligible (...)", "comment": "No trecho do capítulo que sintetiza o behaviorismo intencional, o autor começa relatando que nem sempre a tríplice contingência irá dar conta de explicar o comportamento (pelo menos foi o que entendi aqui). Em seguida, ele traz uma linguagem mentalista para complementar a explicação. Porém, achei a discussão rasa, uma vez que ele não trouxe exemplos em que a tríplice contingência não deu conta do recado. Além do mais, seguindo a lógica dele de que a explicação behaviorista não é suficiente, ele estaria trocando 6 por meia dúzia, uma vez que a linguagem mentalista por si só não explica nada."},
+    {"part": 5, "student": "Lucas de Almeida Medeiros", "page": "162", "excerpt": "The psychological explanation that develops as a result of identifying the contributions and limitations of behaviorism has two stages. The first of these, which we have seen involves the development of an intentional interpretation, treats the consumer as an idealized utility maximizing system and derives the desires, beliefs, emotions, and perceptions that are required in order to account for its behavior.8 The immediate criterion for the appraisal of this depiction is that it renders the behavior of consumers more intelligible and perhaps more predictable. The establishment of this intentional interpretation fulfills the quest for an intentional portrayal of the consumer situation: no longer simply the extensionally specified interaction of a learning history with a consumer behavior setting, the intentional consumer situation presents the framework of desires, beliefs, emotions, and perceptions that render observed consumer choice intelligible in the absence of the required stimulus field.", "comment": "O autor conseguiu articular bem entre a teoria do Behaviorismo radical e aspectos específicos do comportamento do consumidor que inclusive são oriundos de outras áreas. É interessante ver o desdobramento que teorias como a de Skinner podem apresentar quando são inseridas em outras áreas."},
+    {"part": 5, "student": "Isabella Nataly Roque", "page": "153", "excerpt": "Second, the intentional interpretation that forms the second stage of intentional\nbehaviorism is the construction of the consumer situation, the immediate precursor\nof consumer choice, in intentional terms. It, therefore, embodies the language of\nintentionality rather than that of extensionally described consumer behavior settings\n(which consist in stimulus felds) and learning histories (which somehow summate\nprevious exposure to such stimulus felds). The construction of the intentional con-\nsumer situation requires concepts that indicate how the individual represents the\ncontingencies of reinforcement and punishment that have provided the context for\nprevious patterns of consumer choice and those that currently signal the probable\noutcomes of continued consumer actions. These contingency representations con-\nsist in beliefs and desires with respect to the functional outcomes of action and the\nperceptual experience the consumer has had of previously encountered consumer\nsituations plus her current perceptual experience with regard to the outcomes that\nthe present consumer behavior setting suggests will eventuate from further con-\nsumer action.", "comment": "Primeiro, acredito que o autor comete uma gafe na escolha do nome do seu behaviorismo. Intenção e comportamento não combinam. Intenção não pode ser um explicação de comportamento, e não diz muito sobre as variáveis controladoras do comportamento de consumir especificamente. Neste trecho o autor usa tanto a palavra intenção e suas flexões que o texto fica confuso e um tanto quanto mentalista. Atualmente os desenvolvedores em redes socias, experts em comportamento do consumidor entregam produtos de consumo cada vez mais personalizdos e efetivos, analisando, apenas, o padrão comportamental dos usuários, acredito que eles não necessitaram analisar um constructo de intenção. Concordo com a opinião dos colegas de que talvez essa teoria não se configure como um behaviorismo."},
+    {"part": 5, "student": "Sabrina Affonso", "page": "161", "excerpt": "When a satisfactory explanation of observed behavior cannot be made by treating it as a component of a set of contingencies of reinforcement that also includes discriminative and reinforcing/punishing stimuli, the point at which the stimulus feld necessary for a behaviorist explanation is not empirically available to the researcher, psychological explanation becomes inevitable. This leads into the second stage, intentional interpretation, in which na account of the stimulus-free behavior proceeds by treating it as an idealized system which maximizes utility and ascribing to it the intentionality—desires, beliefs, emotions, and perceptions—necessary to render it intelligible.", "comment": "Lendo o texto até o aqui, me incomodou as tentativas de estabelecer vínculos entre o behaviorismo, o cognitivismo e o que Foxall denomina como intencionalismo. Entretanto, mantive a expectativa de encontrar argumentos mais sólidos quando o autor abordasse os fundamentos, contudo, minha decepção só aumentou."},
+    {"part": 5, "student": "Lorena Caroline Mariano Constanski", "page": "166", "excerpt": "As a result of the theoretical thrust of the intentional behaviorist research program’s having moved firmly into its second phase, that of showing what form a psychological explanation of consumer choice should take, it is now principally concerned with action rather than behavior. The adoption of an action perspective means that we are concerned primarily with activities that are performed by the consumer rather than something that happens to the consumer. This focus raises a specific concern with the nature of the cognitive processes that mediate consumer action and their relationship to the ecology of consumption, something of central importance to consumer psychology. We concentrate, therefore, on how the contingencies of reinforcement come to bear on the behavior of the individual through the perceptual aspects of the felt emotion or affect that provide at least a component of her learning history. We are concerned with the contingencies as they exist within the mental processing of the individual rather than in the external environment.", "comment": "Este trecho do texto de Foxall ilustra uma abordagem interessante e talvez controversa no estudo do comportamento do consumidor. Ele parece fazer uma distinção clara entre 'ação' e 'comportamento', com um foco crescente em 'ação', que implica uma consideração mais aprofundada dos processos cognitivos e emocionais do consumidor. Esta abordagem parece desviar-se do behaviorismo tradicional, que se concentra predominantemente nas relações entre estímulos externos e respostas comportamentais observáveis, direcionando o foco para os processos mentais internos que subjazem à ação do consumidor. Embora essa perspectiva possa enriquecer a compreensão do comportamento do consumidor, trazendo nuances adicionais, ela também pode ser vista como um desvio dos princípios fundamentais do behaviorismo radical. Isso gera um questionamento importante: até que ponto podemos integrar essas abordagens cognitivas sem perder a essência do behaviorismo, que se baseia na observação e análise de comportamentos mensuráveis e objetivos? A inclusão de fatores internos, como percepções e emoções, parece oferecer um caminho mais holístico, mas também pode introduzir uma complexidade que desafia a simplicidade e a precisão do modelo behaviorista."},
+    {"part": 6, "student": "Gabriela Sabino", "page": "240", "excerpt": "Traditional behavior analysis had a difficult time addressing human language. An issue of that importance demanded an answer: How can behavioral psychology address the issue of human language and cognition in a way that was more adequate to the challenge of human complexity?", "comment": "Sempre que converso com alguém que não é behaviorista chego nesse desafio da linguagem. Concordo muito com o que Hayes comenta sobre o uso de termos mentalistas para a mudança comportamental. Nosso domínio na ciência comportamental perde a aplicabilidade quando não conseguimos passar informações de qualidade.\nTanto na clínica quanto na educação e na saúde eu tenho sentido essa necessidade. O mais gratificante é quando o pessoal entende a Análise do Comportamento (por meio de exemplos e comentários mentalistas) e, depois, começa a fazer análises funcionais competentes."},
+    {"part": 6, "student": "Gabriela Sabino", "page": "248", "excerpt": "Behavior analysis as an organized field and radical behaviorism as a philosophy of science ultimately could not adequately house CBS because it is a house divided and because the implications of RFT could only be addressed usefully if there was philosophical clarity.", "comment": "Hayes foi cirúrgico nessa crítica. Há muito o que se aprimorar na nossa ciência (e entre cientistas)."},
+    {"part": 6, "student": "Julia Guimarães de Souza", "page": "253", "excerpt": "For those who view Skinner’s work contextualistically, CBS is an evolution and extension of the Skinnerian tradition. Others view this matter quite differently. Regardless of how it is viewed, contextual behavioral science clearly is here and here to stay as a distinct wing of behavioral science.", "comment": "Escolhi esse trecho porque fiquei o texto todo pensando que sempre olhei para a Análise do Comportamento como contextualista. Fui fortemente influenciada por professoras e supervisoras clínicas que trabalhavam com a ACT em sua clínica, então muito da minha formação enquanto Psicóloga deriva da FAP e da ACT. Particularmente, realmente enxergo o contextualismo como uma extensão do Behaviorismo Radical. \n\nHonestamente, acho o Hayes bem inteligente quando ele diz que faz sentido adotar uma linguagem mais \"mentalista\" para falar sobre algumas coisas. É inegável que as terapias contextuais caíram no gosto das pessoas fora da comunidade de Psicologia e muito provavelmente porque essas pessoas conseguem compreender o que está sendo dito ali. Acho que é interessante utilizar de uma linguagem mais \"comum\" quando estamos fazendo um trabalho interdisciplinar ou atendendo os nossos próprios clientes, mas não sei se sou adepta de sempre utilizarmos essa linguagem. Os termos da Análise do Comportamento são tão particulares que é isso que faz ela ser a Análise do Comportamento. Dentro de congressos e da nossa própria comunidade, acho necessário mantermos nosso \"idioma\"."},
+    {"part": 6, "student": "Julia Guimarães de Souza", "page": "263", "excerpt": "My personal opinion is that some “refnements” of radical behaviorism introduced by CBS have been especially effective in reducing the resistance against a behavioral approach. An example may be the slight reformulation of the objectives of a behavioral science as prediction and “infuence,” rather than prediction and “control.” It is my belief that this slight change helped CBS to reach a wider audience, due to the presumably aversive connotations of the word “control,” and the resultant misunderstanding of the objectives of a science that intends to “control” behavior.", "comment": "Sou dessa mesma opinião. Acredito que a CBS acrescenta estudos importantes a Análise do Comportamento e refina alguns aspectos, como a questão da linguagem estudada pela RFT, que Skinner via uma importância em sua época, mas não tinha tecnologias para estudar. E como já falei no comentário anterior, querendo ou não, se aproxima e se familiariza com outros públicos quando utiliza alguns termos que parecem menos \"mecânicos\" (como 'controlar o comportamento') e mais \"humanizados\" (como 'influencia')."},
+    {"part": 6, "student": "Julia Guimarães de Souza", "page": "265", "excerpt": "Once upon a time, long ago, a large and wonderous plant was thought to be so precious that a well-meaning group of admirers built a roof over it with a circle of seats underneath so that people could sit comfortably and appreciate its elegance. Unappreciated by them, the roof reduced the sunlight and defected the needed rain, but for a while the plant still grew, living off splashed in rain and refected light. Ever so slowly, each year the plant weakened. Few seemed to realize what was happening.", "comment": "Três comentários: (1) eu comecei a ler a tréplica do Hayes pensando \"Aí, meu Deus! Ele vai usar uma metáfora bem a moda ACT para explicar CBS e Behaviorismo Radical?\", (2) depois que terminei de ler a história e comecei a ler o comentário dele mesmo, pensei \"Nossa, ele ficou chateado com o que De Rose disse\" e (3) no final do texto, a única coisa que eu queria era poder ler a resposta do De Rose a resposta do Hayes, aposto que seria interessante essa conversa rs.", "reply": "Pensei exatamente o mesmo (Annie). KKK pensei a mesma coisa por aqui (Isabelle)"},
+    {"part": 6, "student": "João Vitor Oliveira Maldonado", "page": "", "excerpt": "The goals of science from a behavior analytic viewpoint were stated by Skinner: “We undertake to predict and control the behavior of the individual organism. This is our ‘dependent variable’-the effect for which we are to fnd the cause” (1953, p. 35). The words “and control” in the phrase “prediction and control” were meant to specify that behavior analysis sought an explanation of behavior that at least potentially allows both prediction and control simultaneously. Given that analytic goal, it would be anathema to view one behavior as causing another because behavior–behavior relations cannot be directly manipulated. Forgetting that point would take radical behaviorism into the path of mentalism. (p. 244).", "comment": "O que me faz pensar nessa frase é: como uma relação entre comportamentos não pode ser diretamente manipulada e o que levaria, a partir dessa premissa, o behaviorismo radical a caminhar pelo “mentalismo”?"},
+    {"part": 6, "student": "João Vitor Oliveira Maldonado", "page": "", "excerpt": "This use of the “act in context” as a unit raises a challenge when one behavior alters the function of another, however, and that is precisely what relational operants appear to do as an empirical fact. One problem with the “act in context” as an explanatory model is that it does not and cannot specify the scope of the act or the context. Context can proceed outward spatially to include all of the universe. Context can proceed backward in time infnitely to include the remotest antecedent, or forward in time to include the most delayed consequence. The “act” in question can vary from the fnest muscle twitch to the most elaborate and extended behavioral sequence. Consequently, in behavior analysis, an operant can be of almost any size and, in principle, can be infuenced by contingencies that are extremely remote or indirect. Under such circumstances, one might ask how we are to know that a particular contextual analysis (in behavior analysis, a particular “contingency analysis”) is adequate?”. (p. 245).", "comment": "Dentro dessa suposição que o \"ato no contexto\" não pode ser considerada a melhor análise, a partir do pressuposto de que o contexto é um conceito amplo e que engloba todo o \"universo\" e que pode estar quase \"perdido no tempo e espaço\" e leva a considerar que o comportamento operante pode ser de \"qualquer tamanho\", me remete a um paralelo quanto aos Axiomas do Baum, quando ele comneta que parte de um comportamento não é comportamento. Desta forma, não necessaciarimente o operante tenha todo e qualquer formato, ele precisa compreende um nível específico de análise para se adequar aos pré-requisitos de \"comportamento operante\"."},
+    {"part": 6, "student": "Wildson Cardoso Assunção", "page": "250", "excerpt": "Yes, taken literally, the term “spirituality” contradicts the monistic assumptions of behavioral psychology, but when it is examined functionally, there appears to be good reasons for the term, based on relational learning and sense of self.", "comment": "Essa perspectiva de se adaptar e evoluir para lidar com conceitos complexos e subjetivos, como a espiritualidade, se forem examinados em termos de suas implicações funcionais. O prof célio me disse o mesmo, e essa foi a sacada dos caras para fazerem sucesso, afinal, no fundo dessa ciencia toda existe o fator comercial que mantém todo mundo interessado"},
+    {"part": 6, "student": "Lucas de Almeida Medeiros", "page": "", "excerpt": "Over the more than three and one-half ecades since the initial description of RFT, it has been systematically extended, and its basic and applied predictions have been examined empirically (Hayes et al., 2001). The RFT literature now extends across several hundred studies, both applied and basic. Most of its central claims have by now been tested empirically. To my knowledge, all of those tests have so far been supported. Review of that literature is not the purpose of this paper, but relatively recent summaries are available elsewhere (e.g., Dymond & Roche, 2013).", "comment": "Eu entendo que o autor está tentando defender a cientificidade e a consolidação de sua área de estudo, mas da maneira como ele expõe a ideia dizendo \"que a maioria dos pressupostos foram testados e confirmados\", dá a entender que os pressupostos foram desenvolvidos antes de uma testagem, o que propõe que talvez a teoria tenha se formado de uma maneira menos científica para depois ser confirmada."},
+    {"part": 6, "student": "Andressa Secchi Silveira", "page": "259", "excerpt": "Because I am curious about behavior, especially human behavior, and I see much human behavior around me that is so hard to explain, I don’t want to isolate myself\nfrom any field of research that may increase my understanding of human behavior.", "comment": "A compreensão de comportamentos complexos seguirá nos desafiando, provavelmente para sempre, ao passo em que compreender comportamentos complexos é um comportamento complexo em si mesmo. A perspectiva contextualista funcional é para mim um desenvolvimento bem vindo à ciência comportamental."},
+    {"part": 6, "student": "Julia Röcker dos Santos", "page": "259", "excerpt": "CBS differs from most forms of behaviorism in that its research strategy is not bottom up. Because the goal is explicitly to create a psychology more adequate to \nhuman complexity, basic and applied scientists and practitioners alike are held accountable for the adequacy of CBS principles and methods. Thus, for example, if \nclinical methods are inadequate and basic principles do not exist to create better ones, it is considered the shared responsibility of applied and basic workers to create \nthe needed basic account. Similarly, if basic advancements are made, it is considered the shared responsibility of applied and basic workers to extend these developments into application. The history of CBS as an area shows the result. Well-known clinicians do RFT research; well-known basic RFT scientists create applied programs. The truth criterion of functional contextualism gives applied and basic accounts alike a stake in the development of the field.\" -", "comment": "Achei muito legal e pragmática a maneira de fazer ciência dentro da CBS - realmente voltada para aquilo que funciona e será usado na aplicação. Defendo bastante a importância da pesquisa básica e da \"ciência pela ciência\", mas achei interessante especialmente por ter tido a impressão de que os pesquisadores de diferentes áreas (básica / aplicada) trabalham juntos em direção aos mesmos objetivos, que conversam entre si. Acho que poderíamos nos inspirar um pouco nesse sentido."},
+    {"part": 6, "student": "Júlio Abner S. Aranha", "page": "", "excerpt": "‘If young behavioral scientists who label themselves as contextual start to believe that CBS brought the light to a feld in which there was only darkness before, this will be detrimental to mainstream behavioral science and perhaps even more to CBS” (Pg. 263).", "comment": "Pelo modo como Júlio C. de Rose encerra o seu discurso, penso que \"agora\" (isso já está acontecendo há um certo tempo) é um momento importante nesse debate teórico, considerando que parece estar ocorrendo um processo de decisão sobre a CBS afastar-se/fechar-se ao diálogo com a ciência comportamental. Além disso, penso que esse processo envolve os dois lados, tendo em vista que a ciência comportamental \"tradicional\" também participa disso ao fomentar um discurso exclusivo aos pensamentos/propostas que fogem do padrão, ou melhor, do \"tradicional\"."},
+    {"part": 6, "student": "Isabelle Wünsche Risolia", "page": "249", "excerpt": "The 1984 article formed a kind of break with the Skinnerian tradition, in which\nliterally mentalistic terms could be embraced as behaviorally useful terms if (and\nonly if) they helped orient the scientific listener to coherent sets of functional analyses.\" -", "comment": "Hayes trás a utilização de termos mentalistas, de forma pragmática, para se comunicar com a comunidade que não necessariamente é analista do comportamento, trazendo mais acessibilidade à ciência e rompendo com a tradição skinneriana. Acho que foi uma estratégia que trouxe mais visibilidade e aceitação para o Behaviorismo. Considero que foi uma mudança significativa e até mesmo um avanço, mas concordo com Rose que isso (e outras mudanças, como o enfoque no contextualismo) não representa de fato uma separação da CBS com o behaviorismo radical. Outro termo que iria selecionar é justamente a fala de Rose de que esse rompimento deve ser analisado de forma contextual, entendendo à serviço do que está sendo feita e quais as suas consequências."},
+    {"part": 6, "student": "Bruno Teixeira Silva", "page": "", "excerpt": "As radical behaviorism was viewed as a variety of contextualism, prediction and\ncontrol was replaced by prediction and infuence—a very small, but needed step.\n“Control” can refer to the elimination of variability, and the pragmatic goal of the\nfunctional contextual behavioral tradition is not that so much as making a difference. The analyses that resulted had to lead to scientifc ways of speaking that were\nprecise (only certain principles can apply to given analytic tasks); they had to be\nbroad in scope (principles needed to apply to a range of events, not only a specifc\ninstance); and they had to have scientifc depth (to cohere across levels of analysis\nso as to lead toward a more unifed fabric of science)\" (p. 246).", "comment": "Hayes denota a aproximação da CBS com o behaviorismo radical. Além da insersão de uma noção (teórica, empírica e aplicada) inteira de linguagem na CBS (RFT), Hayes soube com maestria introduzir a linguagem mentalista de forma a ampliar o alcance e a aceitação da CBS. O trecho, aliado a outros, demonstram que a mente e seus termos mentalistas devem ser entendidos de forma pragmática (a partir da sua definição primordial)."},
+    {"part": 6, "student": "Leticia Batista de Lima", "page": "249", "excerpt": "The 1984 article formed a kind of break with the Skinnerian tradition, in which\nliterally mentalistic terms could be embraced as behaviorally useful terms if (and\nonly if) they helped orient the scientific listener to coherent sets of functional analy-\nses.", "comment": "Muitos dos textos que temos lido me confundem porque apresentam uma \"ruptura\" ou uma \"inovação\" que não aparenta ser muito diferente da prática Skineriana. Claro que há avanços e que o Contextualismo tem produzido dados interessantes, mas fica confuso sua filiação ou não com o behaviorismo radical. Hayes vai falar que sua nova produção teórica não é para ser colocada junto com o RB, diz que a consideração de termos mentalistas não são considerados úteis para eles, e que a CBS rompe com isso. Na minha formação sempre vi crítica a termos mentalistas, mas partir desses termos para operacionalizá-los ou em contextos em que uma expressão ainda não está tão compreensível em termos do RB me parece parte do contexto e trabalho comum dos behvioristas radicais, não uma nova descoberta. Talvez me falte a capacidade de discrimar entre as teorias."},
+    {"part": 6, "student": "Felipe Boldo Martins", "page": "", "excerpt": "Since I have long been an advocate for viewing Skinner contextualistically (e.g., Hayes et al., 1988), in my view CBS is an evolution and extension of behavior analysis understood through that lens. The problem is that many in behavior analysis do not view Skinner that way. That is both obvious and demonstrable, and it has changed behavior analysis itself in profound and apparently permanent ways. For that reason, CBS is cannot be seen as an extension of mainstream behavior analysis as it is today because behavior analysis itself has changed.\" (p. 266)\n\n\"creating a more reticulated model of scientific development instead of Skinner’s bottom up model; creating a robust behavioral account of language that better addresses relational learning; carrying that account into applied areas of complex human behavior; and learning to connect in a deeper and more empirical way with evolutionary sciences\" (p. 268).\n\n\"I agree that the positive outcomes of CBS could have befallen to mainstream behavior analysis in an alternative universe, but in this universe it could not, simply because so much of mainstream behavior analysis is not contextualistic and the field has so dramatically narrowed. It is revisionist history to argue, as Dr. de Rose does, that CBS ideas have been well received by mainstream behavior analysis.\" (p. 268). \n\n\"I think a good working definition of science is this: Science is a social enterprise that has as its purpose the development of increasingly organized statements of relations among events that allow one’s analytic goals to be accomplished with precision, scope, and depth and based on verifiable experience. More is needed to apply that definition as a psychologist and a functional contextualist, namely, the domain of analysis and the analytic goal\" (p. 268).", "comment": "Eu escolhi alguns trechos da tréplica do Hayes, pois, como ele está um pouco chateado com o De Rose, parece que deixou alguns posicionamentos mais explícitos. De qualquer forma, faz sentido ele estar chateado. Tenho a impressão que De Rose não entendeu muito bem os motivos pelos quais Hayes quer ampliar a Análise do Comportamento, oferecendo um novo nome para essa ampliação. As motivações de Hayes fazem sentido! Há inúmeras interpretações da obra de Skinner: ele pode ser determinista, indeterminista, contextualista, mecanicista, selecionista etc. Mas não há um consenso entre os Analistas do Comportamento sobre esses posicionamentos. Sempre fica aquela pergunta: de qual behaviorismo radical estamos falando? E Hayes, lindamente, se posiciona filosoficamente sobre isso, de maneira muito consistente (tenho alguns questionamentos e críticas a algumas propostas de Hayes, mas não cabem aqui falar). Hayes, em minha opinião, deixa claro um dos papéis mais importantes da teoria em sua obra: posicionamento! Quando lemos os textos dele, não temos muita dúvida a quais compromissos filosóficos a ACT e a RFT estão filiadas. Diferente de Skinner. No final da obra de Skinner, conseguimos ver um Skinner selecionista, contextualista... um Skinner que vai se construindo ao longo dos anos, mas que assume uma postura mais contextualista após a década de 1960. No entanto, Skinner nunca deixa claro seu compromisso com o contextualismo. Nós o entendemos assim com base em estudiosos de sua obra. Entendo, ainda, que estabelecer um novo nome para a ampliação da Análise do Comportamento, pode tornar a prática do psicólogo contextualista muito mais coerente. Com a CBS sabemos para onde olhar. Com Skinner, sem ajuda de comentaristas, não conseguimos saber para onde olhar. Em outras palavras, acho que Hayes me convenceu sobre a mudança de nome. Ela traz vantagens como continuar com as contribuições de Skinner, mas agora delimitando qual o olhar que daremos para Skinner. A CBS permite a integração da Análise do Comportamento, Skinner, RFT e ACT. Enfim, permite-nos olhar para tudo de uma maneira integrada e teoricamente consistente. O Behaviorismo Radical pode ter esse papel integrativo, se, e apenas se, você olhar para ele de uma maneira muito específica (i.e., selecionista, contextualista etc) o que nem sempre é fácil de fazer. A CBS parece que veio preparada para isso. Se esse papel integrativo da CBS é melhor que o do Behaviorismo Radical, cabe aos Behavioristas Radicais, que se veem como contextualistas, aceitar a mudança. Isso não significa aceitar a mudança acriticamente. Por exemplo, Hayes afirma que o pragmatismo e o contextualismo são a-ontológicos. Essa é uma das incompatibilidades da CBS com o BR. E, particularmente concordo com a postura BR nisso. Isso mostra o quanto ainda precisamos revisar a nossa área e avaliar as contribuições da CBS ao BR e as contribuições do BR a CBS. Gostei (e estou surpreso com isso)!"},
+    {"part": 6, "student": "Letícia de Assis Pereira Jardim", "page": "239", "excerpt": "The willingness to take topographically mentalistic terms seriously if they turn\nout through functional contextual analysis to orient applied and basic work that\nis behaviorally sensible.", "comment": "Já ouvi duras críticas quanto a utilização de termos mentalistas pela ACT mas me parece muito coerente esta perspectiva de utilizá-los desde que sejam passíveis de uma análise funcional contextual. Por outro lado, entendo a importância de uma teoria e base filosófica muito bem consolidada para que a utilização dos termos não seja empregada e entendida de forma de fato mentalista.", "reply": "Leticia, Léo aqui. Eu ia comentar sobre isso também. Você foi perfeita. Acho que por termos passado pela mesma formação na UEL durante o mesmo período, o sentimento de incoerência do behaviorismo skinneriano era partilhado por nós. Durante nossos anos de formação na graduação, diversas vezes esbarravámos com pessoas nos grupos de pesquisas debatendo se Skinner adotava uma posição determinista ou indeterminista, se por vezes ele era em suas obras mecanicista ou selecionista. Creio que, também, não seja só nós que compartilhamos esse sentimento. Em outras formações, com outros grupos de pesquisa, enfim, certamente experenciavam essa incoerência. Em contrapartida a essa confusão skinneriana rs Hayes assume posições bem firmes com relação ao que ele está propondo. Essa posição é vantajosa! Ela delimita para onde iremos olhar."},
+    {"part": 6, "student": "Letícia de Assis Pereira Jardim", "page": "", "excerpt": "The pursuit of models, theories, and applied program based on evolution science\nand behavioral principles as expanded by RFT that facilitate the prediction and\ninfuence of behavior, with precision, scope, and depth. For example, this would\ninclude the development of the psychological fexibility model as an approach to\npsychopathology and its treatment; the development of Acceptance and CompromisseTherapy (ACT) as an approach to the modifcation of psychologi-\ncal fexibility; or the development of Prosocial, a combination of ACT, psycho-\nlogical fexibility, and Elinor Ostrom’s Nobel Prize winning Core Design Principles for cooperation in small groups.", "comment": "Eles sabem \"vender o peixe\" e estão deixando muitos \"descendentes férteis\", entre todas as teorias vistas até aqui, sem dúvidas é a que mais tem ganhado força e se desenvolvido."},
+    {"part": 6, "student": "Annie Wielewicki", "page": "", "excerpt": "The willingness to take topographically mentalistic terms seriously if they turn out through functional contextual analysis to orient applied and basic work that is behaviorally sensible (239). \n\nAs radical behaviorism was viewed as a variety of contextualism, prediction and control was replaced by prediction and infuence—a very small, but needed step (246)", "comment": "O que me chamou mais atenção nesses trechos e me fez pensar, foi o quanto a mudança de linguagem, não apenas relacionado ao termo “influência”, mas a todo arcabouço da ACT, é de fato necessário, necessário a quê, e quais as demais implicações dessa alteração. \n\nUtilizar o termo influência ao invés de controle, parece suavizar o impacto na opinião pública, evitar maus entendidos e afastar o termo do contexto de críticas, que é habitual ao se falar em controle. Possível que um conjunto de termos mais “palatáveis” favoreça acesso a financiamento, publicidade, etc. Nesse caso, talvez pudéssemos entender como necessário, se considerarmos a dissipação de algumas barreiras ao crescimento da área. \n\nSeria necessário à comunicação no contexto clínico, por exemplo? Será que o uso dos termos topograficamente mentalistas na clínica, ao invés de facilitar a compreensão, não poderia levar à confusão das variáveis de controle? Seria econômico utilizar esses termos, se for preciso tradução ou apropriada contextualização para que não incorra em compreensão mentalista?"},
+    {"part": 6, "student": "Thayná Krueger", "page": "", "excerpt": "I state quite clearly in the target article, however, that “For those who view Skinner’s work contextualisti-cally, CBS is an evolution and extension of the Skinnerian tradition.” Since I have long been an advocate for viewing Skinner contextualistically (e.g., Hayes et al., 1988), in my view CBS is an evolution and extension of behavior analysis under-stood through that lens. The problem is that many in behavior analysis do not view Skinner that way. That is both obvious and demonstrable, and it has changed behavior analysis itself in profound and apparently permanent ways. For that reason, CBS is cannot be seen as an extension of mainstream behavior analysis as it is today because behavior analysis itself has changed. (pág 266)", "comment": "Aqui concordo com Hayes. Muitas vezes, quando um autor propõe uma abordagem diferente da apresentada inicialmente por Skinner, os pesquisadores do campo do Behaviorismo radical têm dificuldade em aceitar isso e tendem a considerá-la como uma nova teoria. No entanto, na verdade, trata-se de uma extensão da ciência, construída sobre o trabalho de diversos pesquisadores. \n\nEssa análise contextual já é muito aceita na área, principalmente nos atendimentos na clínica, muitos professores já capacitam os alunos para atender nos estágios levando em consideração o contexto da pessoa atendida."},
+    {"part": 6, "student": "Lenise Santos Ghisi", "page": "267-268", "excerpt": "CBS is a distinct form of behaviorism, in terms of philosophy of science, strategy of knowledge development, concepts, models, theories, and methods. (…) For those who view Skinner’s work contextualistically, CBS is an evolution and extension of the Skinnerian tradition. Others view this matter quite differently.” (Hayes, 2021a, p. 253)\n\n“I would like to close this commentary proposing that classifying something as a new science, or as an advancement of an existing science, must be regarded as an act in context.” (de Rose, 2021, p. 262) \n\n“(…) the idea that the success of CBS is due to the steps taken that most distinguish CBS from mainstream behavior analysis.. (…) / These steps include being clear about the type of contextualism functional behavioral thinking represents; embracing the need for a priori goals for successful working to work scientifically; emphasizing the need for precision, scope, and depth as qualifiers of the quality of principles and theories; creating a more reticulated model of scientific development instead of Skinner’s bottom up model; creating a robust behavioral account of language that better addresses relational learning; carrying that account into applied areas of complex human behavior; and learning to connect in a deeper and more empirical way with evolutionary sciences.” (Hayes, 2021b", "comment": "Uma Ciência Comportamental Contextual propõe a adoção de uma abordagem contextualista funcional para cientistas comportamentais (mas não apenas estes); a adoção de uma perspectiva que toma por central a ação em contexto; a reformulação do objeto de uma ciência do comportamento (para predição e influência, ao invés de predição e controle); o aumento da diversidade teórica e empírica das pesquisas; o desenvolvimento de aplicações como uma responsabilidade compartilhada de pesquisadores/trabalhadores básicos e aplicados, entre outros.\n\nO desenvolvimento reticulado de princípios, teorias e práticas, proposto pela CBS (Hayes et al,. 2012), não representa um desafio para a formação e a prática de cientistas comportamentais que se dedicam a trabalhar em apenas determinado domínio da Análise do Comportamento (e.g., Moore, 2003; análise experimental do comportamento, análise aplicada do comportamento, behaviorismo radical ou prestação de serviços), dada questões relacionadas a tempo ou escopo de trabalho, por exemplo?"},
+    {"part": 6, "student": "Andressa Félix Ferreira", "page": "253", "excerpt": "Traditional behavior analysis had a difficult time addressing human language. An issue of that importance demanded an answer:\nHow can behavioral psychology address the issue of human language and cognition\nin a way that was more adequate to the challenge of human complexity?\" (p.240) \"The willingness to take topographically mentalistic terms seriously if they turn\nout through functional contextual analysis to orient applied and basic work that\nis behaviorally sensible.\" (p.239) \"For those who view Skinner’s work contextualistically, CBS is an evolution and\nextension of the Skinnerian tradition. Others view this matter quite differently.\nRegardless of how it is viewed, contextual behavioral science clearly is here and\nhere to stay as a distinct wing of behavioral science.", "comment": "Trabalhando em equipes multidisciplinares e até mesmo como psicologa clinica, sinto bastante dificuldade nessa comunicação com o outro \"não-behaviorista\". Não pq sinto que a analise do comportamento não seja o sufciente para a compreensão dos processos, mas a comunicação simplemente não é efetiva em alguns casos... e isso faz com que tenhamos q adaptar os termos.... E me pergunto se somos menos behavioristas por conta disso (ou se sequer somos behavioristas)... e a reflexão e a proposta do Hayes é interessante por possibilitar esse maior dialogo com a população fora da nossa ciencia.... não acho que seja algo diferente e separado da analise do comportamento, mas um continuação natural que nos possibilita continuar existindo e sendo relevantes."},
+    {"part": 6, "student": "Felipe André Alves", "page": "243", "excerpt": "Relational framing most likely emerged as an extension of human cooperation\n(Hayes & Sanford, 2014). In the context of the use of vocalizations to regulate the\nbehavior of others, social referencing (seeking of information from another individual,\nso as to respond to an object or event; Adamson, 1996), joint attention, non-verbal\nforms of perspective taking (Tomasello et al., 2005; Woodward, 2005), and\nskill at non-arbitrary relational learning (see Penn et al., 2008), a human speaker\nnaming an object would be likely to receive that object if the human listener heard\nthe name. That is, an object → symbol relation in the speaker would lead to a symbol\n→ object relation in the listener.\nOnce mutuality was well established, the other defining features of relational\nframing—combinatorial entailment, and transformation of stimulus functions\n(Hayes et al., 2001)—would readily occur\".", "comment": "Achei genial ele abordando o desenvolvimento do repertório relacional desde o início de sua formação por meio da evolução. É Incrível como a partir da cooperação humana desenvolveu-se um repertório tão rico, além de explicar o surgimento é importante esta compreensão para prática, pois torna-se guia para desenvolver o repertório relacional por meio de uma hierarquia, contemplando pré-requisitos necessários para desenvolver um comportamento mais complexo do que o outro."},
+    {"part": 6, "student": "Felipe André Alves", "page": "260", "excerpt": "Other important reasons that lead Hayes to want to part from the rest of behavioral\nscience stem from empirical and theoretical advances of RFT. Advances usually\nrequire an update of old formulations, and sometimes they present a big\nchallenge to established conceptions. Hayes argues that some discoveries of RFT\nmay be “horrible” for behavior scientists that don’t label themselves as contextual\".", "comment": "Concordo com este ponto a dificuldade de aceitar os avanços da RFT em questões que a Análise do Comportamento tradicional não foi capaz de explicar ou de refutar os experimentos da RFT, faz com que atualizações nas formulações antigas não ocorram. Seria muito melhor a RFT dentro da AC do que a criação de um nicho separado para se desenvolver. No entanto, acredito que com os avanços da RFT será inevitavel a aceitação da Análise do Comportamento tradicional."},
+    {"part": 6, "student": "Rafaela Glaser Garcia", "page": "", "excerpt": "These may be taken as very positive consequences of the constitution of CBS as\na vigorous approach. In immediate terms, it seems that both CBS and “traditional”\nbehavioral analysis gain with this. The mainstream approach continues to benefit\nfrom the work of CBS researchers, who continue to contribute significantly to the\nmainstream behavioral journals as authors, reviewers, and editors. They also continue\nto attend the mainstream conventions, increasing the theoretical and empirical\ndiversity of the research that is presented and debated in these meetings; and they\ncontinue to participate in the directive boards of the mainstream associations.", "comment": "Acredito ser esse um (dos muitos) pontos positivos da CBS também. Uma vez que os termos utilizados além de facilitar a psicoeducação do cliente pelo terapeuta, aproxima demais psicólogos da Análise do Comportamento, pois muitos não compreendem os termos utilizados. Isso não quer dizer que estamos \"facilitando\" a abordagem, mas que estamos tentando aproximações com outra áreas e públicos, que na maior parte das vezes não temos justamente por essa nomenclatura robusta que temos. Esse é um avanço da ciência comportamental (assim como os demais behaviorismos) porém a diferença que vejo no behaviorismo contextual é que consigo ver a aplicação dele sendo muito efetiva, tantos nos experimentos, como na parte prática."},
+    {"part": 6, "student": "Isabella Nataly Roque", "page": "240", "excerpt": "Traditional behavior analysis had a difficult time addressing human language. An issue of that importance demanded an answer: How can behavioral psychology address the issue of human language and cognition in a way that was more adequate to the challenge of human complexity?", "comment": "Em última análise no campo aplicado, todas as intervenções envolvem linguagem. Para sermos efetivos em provocarmos mudanças significativas no campo da lingugem devemos nor tornar habilidosos no campo da linguagem comum. As terapias contextuais estão 'dando certo' por seleção natural: as pessoas entendem o que esta sendo dito."},
+    {"part": 6, "student": "Caique Magalhães", "page": "251", "excerpt": "‘’We have a behavioral theory when there are a) systematic and generally applicable analyses of important classes of behavioral observations b) stated in terms of coherently related sets of behavioral principles that c) allow behavioral phenomena within that class to be predicted-and-influenced as a unified goal with greater precision, scope, and depth. That is an analytic-abstractive theory—general functional analysis within a specific domain.’’", "comment": "A ideia de ''pesquisa reticulada'' demonstra eloquentemente não só a aplicabilidade conceitual mas a influência profunda que a RFT tem no trabalho do Hayes como um todo: assim como comportamentos se organizam em quadros relacionais e devem ser analisados histórico e contextualmente, a produção de conhecimento e sua aplicação não estão isolados um do outro, mas devem ser pensado como mutuamente influentes desde o ponto de partida. Foi um conceito que me deu trabalho pra apreciar em sua totalidade, mas que me fez admirar profundamente o trabalho dele, por que parece ir diretamente de encontro com os pontos filosóficos que ele prova no primero capítulo, como a CBS talvez seja muito mais behaviorista do que as concepções mais ortodoxas: se ciência é o comportamento do cientista, em última análise, como o próprio Skinner escreveu, propor um conceito complexo de linguagem e pensamento é necessariamente reavaliar o fazer e propor ciência (que só acontece por intermédio de linguagem e pensamento)."},
+    {"part": 6, "student": "Caique Magalhães", "page": "268", "excerpt": "‘’Science is a social enterprise that has as its purpose the development of increasingly organized statements of relations among events that allow one’s analytic goals to be accomplished with precision, scope, and depth and based on verifiable experience.’’", "comment": "Essa definição parece muito mais contextualizada e pertencente ao momento atual, e uma reformulação parece necessária não apenas para conquistar mais espaço e promover mudanças, mas também para orientar de maneira coerente os objetivos dessa tal ciência: nós sabemos que a atuação como analistas do comportamento não se resume à predição e controle, mas o quanto será que ficamos reféns da nossa própria descrição (e limitação verbal) de nós mesmos ao constantemente definir a nossa própria prática dessa maneira?"},
+    {"part": 6, "student": "Sabrina Affonso", "page": "261", "excerpt": "Considering that this was a very original formulation, going far beyond the behaviorist theories of the time, and considering that Skinner was just human, and not a god or a prophet, it would be virtually impossible that his Herculean work was perfect. What may surprise us, though, is how effective Skinner’s account has been, despite its inevitable weaknesses.", "comment": "Gostei dessa argumentação de De Rose, visto que, como uma ciência em constante evolução, é inegável que diversos elementos do RB possam ser sujeitos a contestações. A contribuição da CBS trouxe à tona aspectos que considero pertinentes, especialmente no que diz respeito à interação com o público. No entanto, considero importante ter cautela ao empregar certos termos mentalistas na definição de conceitos comportamentais, a fim de evitar o risco de uma disseminação generalizada destes termos, sem o sólido conhecimento teórico que os explicam."},
+    {"part": 6, "student": "Lorena Caroline Mariano Constanski", "page": "", "excerpt": "CBS is a distinct form of behaviorism, in terms of philosophy of science, strategy of knowledge development, concepts, models, theories, and methods. Over the last decade or two, it has been the fastest-growing wing of behaviorism across a wide range of topics and areas, whether defined by popularity, the volume of research output, research impact as measured by citations, breadth of basic findings, breadth of applied findings, or global reach. In many areas of work (e.g., psychotherapy) CBS related approaches are now the most visible face of behaviorism worldwide.\nFor those who view Skinner’s work contextualistically, CBS is an evolution and extension of the Skinnerian tradition. Others view this matter quite differently.\nRegardless of how it is viewed, contextual behavioral science clearly is here and here to stay as a distinct wing of behavioral science\" (p-253)", "comment": "Esse trecho sobre a Ciência Comportamental Contextual (CBS) faz pensar nas diferenças entre ela e o behaviorismo radical de antes, principalmente em como ela trata a mente e coisas que acontecem por dentro da gente. A CBS usa ideias da ACT e da RFT para olhar a mente e os pensamentos de um jeito mais prático e relacionado com o que acontece ao nosso redor. Mesmo que eu não concorde com tudo da CBS, acho interessante como ela liga o comportamento com a linguagem e o pensamento. Isso mostra uma mudança grande no behaviorismo, trazendo novos jeitos de entender coisas que antes não eram muito faladas. Isso mostra como a psicologia comportamental está sempre mudando e que a conversa sobre a mente e processos internos pode ser mais complicada e cheia de detalhes do que a gente pensava antes."},
+    {"part": 7, "student": "Bruno Teixeira Silva", "page": "", "excerpt": "This approach assumes two things. The frst is that ordinary language practices,\nmade up of “mental” terms and expressions, are the original constitutive source of\npsychological phenomena, its “raw” material. The second is that not all practices\nbetween individuals and, therefore, not all individual behaviors or “experiences”\nqualify as psychological phenomena. Consequently, psychological events, contrary\nto what both mentalistic and behavioral psychologies suppose, do not constitute a\ncontinuum of occurrences from birth to death, but, on the contrary, consist of discontinuous episodic fragments, interpolated between intervals consisting in purely\nbiological events, and others that correspond to episodes of ecological or social\ncharacter, as will be seen later. Since the original source of psychological phenomena are ordinary language social practices, we might question the occurrence of\npsychological behavior in the animal world. This issue has two angles of analysis.\nOne is that of psychological phenomenology of animals in ordinary life, and another\nthat of the legitimacy of including the psychological behavior of animals in the\nscientifc discipline\" (286).", "comment": ""},
+    {"part": 7, "student": "Wildson Cardoso Assunção", "page": "279", "excerpt": "The relations defning psychological phenomena are always characterized by being contingent, that is, circumstantial. They are not predetermined (i.e., they are\nnot necessary by or in themselves), and, therefore, they are always conditional or circumstantial. Being contingent is always “of” or “to” something, that is, depending, being conditional or circumstantial on occurrences, on the properties of occurrences, or on the properties of another object or event. (...)", "comment": "Eu pensei \"essa é uma analise molar?\", mas depois de continuar lendo entendi que essas contingencias são mais amplas que a analise molar, mas aí ele fala em \"interdependência de eventos, respostas e estímulos em um campo de contingência\", colocando mais \"complexidade\" na a análise. Acho que se fosse pra categorizar teríamos uma análise molecular, molar e \"campo de contingência\". Será que depois analisaríamos o comportamento como \"histórico de reforço\"? me parece válido categorias assim, se for isso mesmo, claro"},
+    {"part": 7, "student": "João Vitor Oliveira Maldonado", "page": "", "excerpt": "The frist has to do with the fact that psychology is the only discipline whose subject matter lacks substantial entities of its own (Ribes, 2013). Historical pseudosolutions to this situation were to identify psychological events with mental experience or with brain structures and functioning. Both ontological attempts were reductionistic, whether monistic or dualist. Psychology is the only scientifc discipline that does not study entities and their properties, as does physics, chemistry, biology, social-historical science, and linguistics. Psychological events, unless you want to reduce them to an epiphenomenon of the brain or of social practices, are not identifable by an entity, and take place only as episodic relations in circumstance. Relations occur between entities, a biological individual, and a physical, biological, or conventional object, but such entities cannot be characterized as psychological”. (p. 287).", "comment": "Meu sincero comentário, não entendi o que o Ribes quer. Ele tenta postular algumas relações existentes entre conceitos biológicos e chega a comparar a psicologia com ciencias de base e questiona o porquê da psicologia não atingir esse nível. Depois critica a seleção pelas consequencias na tentativa de trazer uma relação reduducionista à análise. A sua proposta, frente aos parametros dispostos em outras teorias, ainda é muito confuso. Não senti que o autor consegue explicar de forma clara o que de fato é o seu objetivo ao modificar e criticar as relações propostas pelo bahaviorismo radical. Nos comentários do Hernando e doa Tiago, é dito que Ribes tenta construir uma linguagem que seja mais adequadas àqueles \"não behaviosristas\", mas não creio que ele consiga ter efetividade nisso. Não em seu capítulo.", "reply": "Também achei confuso, já ví várias propostas de tentar adequar a linguagem. Parece que todo mundo concorda que isso é um problema no behaviorismo radical, e ao mesmo tempo ngm sabe como resolver isso da maneira mais científica possível, já que adotar jargão cognitivo seria uma violência. A minha hipótese é que como existia muita filosofia por trás da psicologia e quase todas as abordagens são só filosofia (psicanálise, histórico-cultural, humanista etc), parece que esse é o padrão e qualquer coisa que não for assim era rejeitado. A excessão é as neuro, que nesse caso por serem \"mais de outra área\" foram \"perdoadas\". O Hayes é o único que conseguiu, mas foi dando um passo p trás para ter espaço entre os cientístas e trabalhadores ao mesmo tempo ~wilde"},
+    {"part": 7, "student": "Julia Guimarães de Souza", "page": "317", "excerpt": "In TP taxonomy, language may be present since the simplest type of functional contact, coupling-contingencies, even if the most sophisticated possibilities emerge only with extension and transformation contacts. Some of our simplest reactions, like seeing an object as a fruit, a mere action of perceiving, are functionally related to linguistic conventions with which we interact in social contexts. The act of seeing an object, as a perceptual process, may not be an operant response, in Skinnerian terms, but this is not a good reason for claiming that the response lacks verbal character, regardless of the defnition of verbal behavior proposed by Skinner (1957). TP seems to offer a more appropriate alternative to conceive the total role of language in human behavior.", "comment": "Achei esse trecho do parágrafo bem explicativo e concordo que essa forma de olhar para a totalidade da linguagem no comportamento humano é interessante, mas confesso que só entendi que era isso que o Ribes estava apontando ao ler o capítulo de comentários. Achei um pouco confusa a forma com que o autor foi explicando a TP em seu texto e em vários momentos me peguei pensando \"não estou entendendo nada\"."},
+    {"part": 7, "student": "Julia Röcker dos Santos", "page": "323", "excerpt": "We can speculate that a possible obstacle to the adoption of TP by other scientists or by psychologists could be the extension and complexity of its conceptual paraphernalia. The high response cost involved in assimilating such an extensive technical vocabulary almost makes the reader recognize virtues in the reductionist approach targeted by the author. Another stylistic feature that makes it diffcult to understand the proposal is the parsimony with which examples are given. When exposing the fve kinds of functional contact in this volume, Ribes illustrates each\ntype with very brief descriptions of situations, what is understandable given the limited space. But one can experience similar diffculty in more extended expositions of TP, like Ribes (2018), in which, sometimes, the examples of the concept explained are presented only after several pages of purely abstract reasoning. Grounded on rigorous conceptual and theoretical reasoning, TP undoubtedly shows remarkable explanatory power. Due to the rich resources it offers to a detailed description of behavior, TP can be compared to a very high defnition set of photographs. This virtue, however, brings with it a relevant limitation: the photographs are probably too heavy, and its processing is not viable or too slow in most devices. Thus, it would not be surprising that people continued to choose the low-resolution photographs of atomistic theories instead of their more costly alternatives. In order to accomplish its social function of providing scientifc interpretations to be adapted and used in the interdisciplinary felds, TP has to fnd a way to present more accessible images of itself.", "comment": "Selecionei esse trecho simplesmente porque eu me senti assim durante toda a leitura. Senti que, de alguma maneira, não estava entendendo direito a proposta inicial do autor. Achei que entenderia melhor lendo o capítulo de réplica, mas me enganei. Continuei sem entender exatamente o que o autor estava propondo... Contudo, quando o Hernando e o Tiago colocaram esse final no capítulo, senti que alguém entendeu o que eu estava sentindo! Me parece que, mesmo que o Ribes esteja propondo algo super interessante, será algo que pouquíssimas pessoas serão capazes de \"decidir\"/discutir. Seu texto me pareceu muito inacessível - ainda mais inacessível que os textos de análise do comportamento... Então acredito que a maneira como ele explicou sua proposta (seja pela linguagem, pelo tamanho do capítulo, pela cadência do texto, sabe Deus...) não foi muito eficiente em \"vender seu peixe\". Talvez, se o texto fosse um pouco mais acessível, eu conseguiria entender melhor e formular uma opinião."},
+    {"part": 7, "student": "Leticia Batista de Lima", "page": "286", "excerpt": "Consequently, psychological events, contrary\nto what both mentalistic and behavioral psychologies suppose, do not constitute a\ncontinuum of occurrences from birth to death, but, on the contrary, consist of dis-\ncontinuous episodic fragments, interpolated between intervals consisting in purely\nbiological events, and others that correspond to episodes of ecological or social\ncharacter, as will be seen later.", "comment": "Este trecho me lembrou um pouco das discussões psicanalistas que falam sobre como o \"tempo do inconsciente não é cronológico\". Acho muito revolucionário, para uma ciência que se propõe a ser histórica, conseguir escapar dessa noção linear de história - e, neste caso, de condicionamento. Contudo, fiquei um pouco confusa com as explicações do autor sobre sua teoria e como esses intervalos aqui citados são importantes para uma nova compreensão daquilo que é \"psicológico\"."},
+    {"part": 7, "student": "Gabriela Sabino", "page": "275", "excerpt": "As a result, I concluded, to the surprise of my colleagues, that operant conditioning (or behavior analysis) constituted a reductionist, linear, atomistic, cause-searching, and technologically oriented approach.", "comment": "Ribes-Iñesta foi corajoso começando o capítulo assim. Para mim, foi uma ótima forma de chamar a atenção do leitor para o restante do texto. O que me veio na cabeça foi: Tá... faz sentido. Mas como ele vai apresentar essa conclusão?"},
+    {"part": 7, "student": "Gabriela Sabino", "page": "276", "excerpt": "In other words, in a psychological field, as in any kind of field, there are no causes and effects (neither independent/dependent variables), but only interdependent\nrelations among the elements that make up or constitute the field.", "comment": "Eu gosto dessa ideia de interdependência. Sempre que converso sobre a tríplice contingência com pessoas que não são behavioristas é complicado explicar onde ela \"começa\" e \"termina\". A gente faz esse recorte para facilitar a análise, mas há sempre o risco de reduzir o comportamento a esse recorte. Uma perspectiva mais fluida é bem interessante.\nPorém, tenho que concordar com Neves Filho e Magalhães (p. 323) a respeito do custo da resposta para utilizar a TP. Já temos dificuldade com a análise do comportamento. Incrementar o vocabulário técnico pode ser um custo muito alto para novos cientistas."},
+    {"part": 7, "student": "Júlio Abner S. Aranha", "page": "", "excerpt": "The new proposal includes the following functional contacts: coupling-contingencies, alteration-contingencies, comparison-contingencies, extension-contingencies, and transformation-contingencies. The name of each type of contact underlines the type of functional relationship that characterizes each one. Unlike TB, dispositional functions are integrated as part of the feld’s stimulus objects (in correspondence to the states, history, and reactive characteristics of the individual) (pg. 289).", "comment": "Penso que Ribes, em alguns momentos, deixa a desejar quanto ao princípio da parcimônia. A introdução de várias categorias de contingências funcionais, como \"coupling-contingencies, alteration-contingencies, comparison-contingencies, extension-contingencies, and transformation-contingencies,\" cria uma complexidade um tanto desnecessária. Acredito que essa categorização excessiva pode tornar a teoria menos prática e difícil de aplicar na vida real, especialmente quando estamos considerando a comunicação com outras ciências."},
+    {"part": 7, "student": "Lucas de Almeida Medeiros", "page": "", "excerpt": "Finally, a third aspect has to do with how psychology can help to locate individual relations in the field of ideological practices, nailed down in the form of beliefs and moral criteria. Obviously, this aspect is critical not only to understand how individuals are inserted and articulated in the constitutive dimensions of social practices, but it is also essential to assess the relevance and justification of the interdisciplinary interventions of psychology. Psychology’s applications, like any other form of socially applied knowledge, are not neutral and, in the case of our discipline, have important implications regarding the so-called “clinical” applications and the analysis of social values. Social ideologies are not only “abstract” systems that support world and life conceptions, but, mainly, they are real practices in society whose function is domination in the form of the hegemony of one social class over the others. Ideologies are embodied as beliefs regarding the role and social function of every individual. The dominated classes accept the beliefs imposed by the dominant classes as facts articulated in their own practice and which, in principle, are presented as “natural” and incontrovertible. Beliefs are not determinants of practices, but the consubstantial result of them. To change beliefs, practices must change. Similarly, we may look at moral criteria in two ways. One is that of the individual who experiences moral feelings, of well-being or discomfort, because of anticipating participation in an act, of performing it, or of having performed it. Moral feelings are not a system of “rational” justifications. The latter correspond to the institutions, formal and impersonal, that value and justify or condemn the actions in question. But morality always corresponds to the individual, to the feeling that gives meaning to what he does or does not do, and has nothing to do with more or less universal norms that rationally justify, based on some principles which transcend every act, the “goodness” or “badness” of what has been done. Moral feelings are shaped in the process of individuation as part of attachment relations (empathy and apathy) and, in that sense, their origin and life course can be traced in that", "comment": "O ponto atingido pelo autor, pode funcionar como uma autocrítica, na medida em que ele próprio sendo teórico da psicologia, é também um indivíduo que é influenciado pelas ideologias que segue e influencia outros pela ideologia que propõe. Não tenho como discordar do autor quando ele afirma sobre a ausência de \"neutralidade\" no desenvolvimento do conhecimento, uma vez que a ciência, assim como as outras formas de conhecimento, são desenvolvidas dentro de um contexto histórico, cultural e econômico, e que é impossível separá-la desse contexto, uma vez que ela própria é um produto dele."},
+    {"part": 7, "student": "Lucas de Almeida Medeiros", "page": "311", "excerpt": "process.", "comment": ""},
+    {"part": 7, "student": "Leonardo Adolpho Martins", "page": "268", "excerpt": "[...]the formulation of a taxonomy of different kinds of functional, behavior organization, beyond the operational respondent/operant dichotomy, verbal/nonverbal, and rule-governed/contingency shaped subdivisions.", "comment": "Por mais que a Análise do Comportamento afirme ser uma teoria monista (e acredito que é um consenso da área), a construção do conhecimento e o processo explicativo do comportamento por vezes se faz a partir de uma dicotomia, como Ribes bem coloca. Podemos falar que é para fins didáticos tais dicotomias. Ou também, podemos falar que essa descrição aumenta a probabilidade do leitor entenda a teoria de uma forma dicotomica. É um gume de duas facas."},
+    {"part": 7, "student": "Leonardo Adolpho Martins", "page": "270", "excerpt": "This medium enables de actual presence of both stimulus objects and the organism’s reactive systems. As a complement, two additional contact media were proposed in TB: the ecological medium, which enables survival, and the conventional medium, exclusively human, which enables living together. Both media necessarily require the physicochemical medium, just as the conventional medium requires the ecologi cal medium. Therefore, since media enable functional contacts, they are not mutu ally exclusive in a psychological feld. While the physicochemical contact medium logically represents the physical and chemical conditions required for psychologi cal behavior to occur, the ecological medium represents the biological habitat con ditions, and the conventional medium represents the conditions of social formations \nin terms of institutions and customs.", "comment": "Achei interessante essa ideia dos diferentes meios. Pouco parcimoniosa, mas interessante. Acho que detalha e aprofunda mais a possibilidade da análise. Vai de encontro, também, com que ele entende por ciência, baseado na distinção feita na introdução do texto entre Skinner e Schoenfeld. Penso que possibilita uma análise minunciosa, ao passo que não me parece uma análise molecular. Minunciosa e molar. Acho interessante... Mas como dito, a parcimonia passou um pouco longe."},
+    {"part": 7, "student": "Thayná Krueger", "page": "", "excerpt": "Neo-Darwinism implies, did not emerge as a privileged mutation, with a brain designed (who knows by whom) to gesticulate, speak, and associate individually with others to build a social organization. It gradually differentiated itself from other species of the same Homo genus, due to circumstances fostered by its life in society and the social division of labor, as a specialized form of living together, and it is under these circumstances that social practice as language emerged. (p.310)", "comment": "Amei esse trecho. Variação e seleção? Essa ideai de que tanto o organismo humano que é uma 'coisa' biológica, como as formas de relações sociais e a linguagem foram sendo modificadas ao longo do tempo pela interações com o ambiente."},
+    {"part": 7, "student": "Andressa Secchi Silveira", "page": "335", "excerpt": "The adoption of models foreign to psychology has been confounded with multi-\ndiscipline and interdiscipline relationships when logical intrusion and reductionism\nare really taking place. In the case of selectionism and econometric models based on\nmarginalism and an ideal free market, ideological bias is evident, and in the case of\nequivalence models a return to formalism and rationalism may be observed. True\nmultidiscipline must consider two conditions: first, the specificity of each discipline\nwhich enters in relation, and second the role that performs each discipline in the\nmultidisciplinary enterprise, either regarding the theoretical question or the method-\nological and informative contribution. Never the theoretical problems of a discipline\nshould be replaced by models or issues from other disciplines, as usually occurs in\npsychology. When model-invasion occurs, it indicates the confusion and logical\nmixture prevailing in the discipline. Unfortunately, this is the case in psychology\nand in so-called behavior analysis or operant theory. In addition to the formulation\nof a logical model specific to the subject matter of psychology, it is required a suf-\nficient knowledge of the theoretical status of neighboring disciplines, in order to\nprevent the “pick-up” temptations resulting from “accidental” discoveries. In the\ncase of interdisciplinary relations, these are determined by the social problem\ndemanding attention and solution. It is not a matter of applied or translational sci-\nence as it is fashionable to say in present days (...)", "comment": "As colocações do Riber me ajudaram a pensar mais criticamente quanto ao uso de analogias e metáforas na Análise do Comportamento, da mesma forma que já havia pensado quanto a conceitos de outros sistemas psicológicos. Fiquei com vontade de ler mais do trabalho dele, e convencida pelo comentário que ele faz no início de que a sensação de que a linguagem usada é complexa demais e pouco parcimoniosa deve-se em grande parte à pouca experiência do leitor com as proposições, da mesma forma que ocorre com o aprendiz iniciante de condicionamento operante. Muito interessante fechar o livro com essas discussões."},
+    {"part": 7, "student": "Lenise Santos Ghisi", "page": "316", "excerpt": "In other words, in a psychological field, as in any kind of field, there are no causes and effects (neither independent/dependent variables), but only interdependent relations among the elements that make up or constitute the field. Field determinants are the interrelations among its components. No agent outside the field influences the field. Not all the components of a field have the same functional properties, and, therefore, in the case of a psychological field it is essential to specify the categories that describe these general properties. Kantor specified three categories to describe a psychological field: the contact medium, the contact between an organism and a stimulus object or stimulus-response function, and setting factors involving situational factors and the interbehavioral history, made up of the reactive biography and stimulus evolution.\" (Ribes-Iñesta, 2021a, p. 276) \n\n\"(...) psychology must anchor its subject matter in a universe of phenomena belonging to ordinary knowledge and language practices.\" (Ribes-Iñesta, 2021a, p. 284)\n\n\"As explained by Ribes (1997), following Kantor (1924), technical behaviorist language frequently confuses stimulus object, stimulus, and stimulus functions. Among other things, a more precise classification could be helpful to distinguish the various stimulus functions between each other and to more accurately understand the relations between psychology and other sciences, mainly biology and sociology.\" (Neves Filho & Magalhães, 2021", "comment": "Se de um lado a proposta de Ribes-Iñesta (2021a) parece proporcionar uma comunicação mais eficiente entre pesquisadores de diferentes ciências e, alegadamente, mais próxima à linguagem do cotidiano, auxiliando, por exemplo, a compreensão de relações simbólicas, de outro lado a sua proposta me pareceu mais estruturalista e menos parcimoniosa na explicação da relação entre outros eventos, tais como relação entre contingências (operantes) e relação entre sistemas comportamentais e culturais."},
+    {"part": 7, "student": "Beatriz Ramos Santiago", "page": "", "excerpt": "Contrary to our pragmatic culture, advances in psychology do not necessarily depend on empirical accumulation of evidence, especially when it is based upon conceptual misunderstandings. The critical revision of prevailing assumptions about human behavior may be a more adequate strategy to formulate meaningful questions” (p. 121).", "comment": "As impressões acerca da TP foram mudando gradualmente de acordo com a leitura do texto. Como de costume, primeiro o estranhamento no contato com uma teoria que deixa de cabeça para baixo a proposta Skinneriana e nos deixa com fortes crises existenciais. Sim! Que bacana que alguém parou para pensar que um estímulo nem sempre é um estímulo, que as análises funcionais podem ser diversas e, não necessarimanete lineares,mas diagonanais, tranversais, paralelas. Existe muito mais para esmiuçar do que imaginaríamos na tríplice contingência, isso é um fato. Somo embebidos pelos sistemas ecológicos e sociais. E é interessante pensar que a ideia do Ribes é molar, mas é uma perspectiva molar diferente da perspetiva molar de Baum, Rachlin e outros, porque ao invés de enfatizar, necessarimanete a amplitude da análise temporal, enfatiza as milhões de variáveis presentes num recorte não muito longo de tempo. Num segundo momento lendo os textos tive a sensação de: mas meu deus porque diabos tantos campos funcionais para o entendimento de UM comportamento. E isso me fez questionar a parciomônia e aplicabiliadade de toda essa teoria. Mas daí isso me fez pensar que talvez Ribes e Skinner, enquanto produziam seus postulados, tinham ideias ligeiramente diferentes de qual era o objetivo do estudo de uma ciência do comportamento. Enquanto que para Skinner o objeto de estudo seria o comportamento. Para Ribes não me pareceu estar claro que era apenas o comportamento mas também processos de individuação e subjetividade. Além disso, Skinner adotava uma postura pragmática no entendimento de ciência em sociedade, enquanto que Ribes se estendia bastante no processo rigoroso de conceituação de fenômenos, e se satisfazia com isso. A confusão está montanda e parece que agora é com gente entender em que medida a TP pode ser utilizada na análise comportamental contemporânea."},
+    {"part": 7, "student": "Annie Wielewicki", "page": "247", "excerpt": "Not only did it seem naïve to think of a behavioral technology as suggested\nin the early years of effervescence in behavior modification, behavior therapy,\nand applied behavior analysis, but also it seemed questionable to assume the\npossibility of extending, as simple extrapolations, so-called “principles” of behavior,\nto human behavior in social situations. These “principles” were nothing more\nthan experimental operations developed in the research of animal behavior in operant\nconditioning chambers, with all the qualitative and quantitative restrictions it\nentailed.", "comment": "Esse foi o Behaviorismo que menos entendi (ainda sendo amena). \n\nSeparei esse trecho porque foi uma das coisas que mais me fez pensar e já tem sido um questionamento que me ronda: da complexidade do comportamento humano e o quanto nossos princípios e tecnologias são \"suficientes\" para analisar e intervir em diferentes contextos. Por outro lado, como adicionar elementos que façam jus à complexidade do comportamento humano, sem apelar a causas internas ou introduzir terminologias demasiadamente complexas que dificulte sua compreensão e consequentemente, sua aplicação? Para mim, Ribes representou essa complexidade inacessível. \n\nTambém devo considerar minha (nenhuma) familiaridade com sua proposição, o que certamente interferiu na minha (nenhuma) compreensão."},
+    {"part": 7, "student": "Felipe Boldo Martins", "page": "", "excerpt": "We will approach the analysis of TP in three different sections: (1) the redefinition of psychology’s subject matter, (2) the reformulation of stimulus-response functions as states and transitions of functional contacts in a contingency field, and (3) the extension of the field model to the study of individuation as development (becoming), comparative analysis and behavioral styles, as well as to the multi- and interdisciplinary relations of psychology. In the final section, we will examine the role of psychological knowledge in understanding social practices\" (p. 284). \n\n\"TB proposed that psychology’s subject matter was the interaction between an organism and its environment, later specifying that this interaction was actually with a stimulus object or event. The individuality or uniqueness of the components that made up such interaction defined the nature of psychological phenomena, an approach that was correct in principle. However, this approach neglected the incontrovertible fact that psychology must anchor its subject matter in a universe of phenomena belonging to ordinary knowledge and language practices\" (p. 284).\n\n\"Consequently, psychological events, contrary to what both mentalistic and behavioral psychologies suppose, do not constitute a continuum of occurrences from birth to death, but, on the contrary, consist of discontinuous episodic fragments, interpolated between intervals consisting in purely biological events, and others that correspond to episodes of ecological or social character, as will be seen later. Since the original source of psychological phenomena are ordinary language social practices, we might question the occurrence of psychological behavior in the animal world\" (p. 286).", "comment": "Escolhi esses três trechos, pois acredito que resumem bem a proposta do autor. Atualmente, acredito que toda teoria psicológica de peso leva em consideração as práticas linguísticas... em behaviorês: o comportamento verbal. Contudo, é estranho para mim a proposta de não entender toda a história do indivíduo como um fenômeno psicológico. Talvez eu não tenha entendido direito, mas delimitar essa separação pode gerar uma análise confusa e pouco efetiva, pois, em minha opinião, eventos biológicos, sociais, ecológicos etc, participam das relações de contingências. Enfim, concordo com a crítica de que a ideia é pouco parcimoniosa."},
+    {"part": 7, "student": "Isabella Nataly Roque", "page": "286", "excerpt": "Psychological phenomena are not special activities or entities. They are episodic relations between individuals in ordinary language practices, and as relations, it makes no sense to predicate their direct observability. The elements in the relation can be observed, but not the relation itself. Psychological phenomena, therefore, do not constitute discrete singular occurrences but involve molar relations between two individuals...", "comment": "Acho que a discussão de ampliar a análise para além do recorte epistemológico da unidade discreta sempre é bem vinda principalmente em contetxo clínico e aplicado. É como se fossem sistemas numéricos mais ou menos amplos, um está contido dentro do outro. A ampliação maior ou menos da análise depende da demanda de ampliar a análise, porém o simples está contido no complexo."},
+    {"part": 7, "student": "Rafaela Glaser Garcia", "page": "", "excerpt": "We can speculate that a possible obstacle to the adoption of TP by other scientists\nor by psychologists could be the extension and complexity of its conceptual paraphernalia.\nThe high response cost involved in assimilating such an extensive technical\nvocabulary almost makes the reader recognize virtues in the reductionist\napproach targeted by the author. Another stylistic feature that makes it difficult to\nunderstand the proposal is the parsimony with which examples are given. When\nexposing the five kinds of functional contact in this volume, Ribes illustrates each\ntype with very brief descriptions of situations, what is understandable given the\nlimited space. But one can experience similar difficulty in more extended expositions\nof TP, like Ribes (2018), in which, sometimes, the examples of the concept\nexplained are presented only after several pages of purely abstract reasoning.", "comment": "Concordo com o comentário do prof Hernando sobre a dificuldade que será para pessoas aderirem a esse behaviorismo por conta da linguagem e conceitos complicados de entender e aparentemente de explicar, pela própria explicarção do Ribes. Já é uma crítica que a Análise do Comportamento convive em relação a nomenclatura e dificuldade de compreender os conceitos, e Ribes chega com mais conceitos complicados. Acho muito válido e importante esse movimento que ele fez/faz durante sua vida de pesquisar novas formas de compreender o comportamento e formular um novo behaviorismo, principalmente com essa visão molar e não molecular, porém é preciso pensar na aplicabilidade da mesma, sendo a prática outro ponto que Ribes comenta, dizendo que seu Behviorismo não é uma prática e sim uma ciência. Mais uma vez discordo dele, pois não vejo sentido em dedicar tempo em estudar algo que não tem relevância prática ou social."},
+    {"part": 7, "student": "Isabelle Wünsche Risolia", "page": "278", "excerpt": "The theoretical proposal encompassed three fundamental issues: (1) the replacement of an atomistic and causal analysis of conditioning theory with a field, deterministic and molar analysis, (2) to make explicit theory’s assumptions, and (3) the formulation of a taxonomy of different kinds of functional behavior organization, beyond the operational respondent/operant dichotomy, verbal/ nonverbal, and rule-governed/contingency shaped subdivisions.” (pg 275)\n\n“In other words, in a psychological field, as in any kind of field, there are no\ncauses and effects (neither independent/dependent variables), but only interdependent relations among the elements that make up or constitute the field. Field determinants are the interrelations among its components.” (pg 276)\n\n“TB represented a first attempt, systematic and integrative, to seek a logic and language specific to psychology, oblivious to any eclectic or reductionist slip, putting aside models form other disciplines, avoiding the theoretical division of the psychological universe due to different conceptions of its subject matter, and taking special care not to confuse words with phenomena and events.", "comment": "Particularmente, achei o behaviorismo mais difícil de entender do livro (ainda bem que foi o último, teria sido punk começar a leitura por ele haha). Achei bem interessante o conceito de campo e interdependência de relações, foi o que considerei que mais acrescentou ao tão conhecido behaviorismo radical. A ideia da tríplice contingência pode funcionar no laboratório, mas parece que na “vida real” é reducionista e deixa muitas variáveis de lado. Sendo assim, olhar para um campo de interdependência fez bastante sentido para mim, é algo que podemos perceber bastante na prática clínica, onde dificilmente um comportamento alvo pode ser destrinchado apenas pela tríplice contingência. \n\nO autor também trouxe a necessidade da análise molar (algo que vimos em diferentes behaviorismos no livro), solidificando ainda mais a necessidade unânime entre os behavioristas de expandir as análises. \n\nRibes-Iñesta trouxe a questão da linguagem tecnicista como um problema para o behaviorismo, formulando uma linguagem “simplificada” e unificada com o resto da psicologia. Essa tentativa me lembrou o trabalho de Hayes, que tentou conversar com outras áreas por meio de uma linguagem menos técnica. Porém, diferente de Hayes, acho que Ribes-Iñesta não foi feliz em sua tentativa, deixando seu behaviorismo ainda mais complicado (só ver pelos comentários aqui o tanto de gente que não compreendeu direito). Por fim, achei a ideia de unificar a psicologia interessante, porém reducionista e até mesmo ingênua, uma vez que o objeto de estudo da psicologia difere de acordo com suas formas de interpretação."},
+    {"part": 7, "student": "Caique Magalhães", "page": "275", "excerpt": "‘’As a result, I concluded, to the surprise of my colleagues, that operant conditioning (or behavior analysis) constituted a reductionist, linear, atomistic, cause-searching, and technologically oriented approach. Unfortunately, to this day most of my colleagues still do not understand my conclusion.’’ (p. 275) '’Early in 1982, I began to develop a new theoretical framework, based on a field logic, that could systematize the experimental knowledge achieved up to then, especially that arising from operant theory, but that at the same time allowed “seeing” in a new manner such knowledge and opening inquiries and applications to new problems and ways of conceiving them.’’", "comment": "Ele rompeu com o behaviorismo (que ele está reduzindo ao paradigma operante), para criar outra teoria que abrisse mais espaço pra entender outros fenômenos com um corpo teórico mais extenso... Eu penso que os conceitos mais simples servem para entender os mesmos fenômenos complexos, sem a necessidade de jogar eles pela janela. A rota ''psicoquímica'' pra interpretação do comportamento que ele faz é muito perigosa até filosoficamente falando, creio eu: transpor conceitos da física e da química pra uma teoria do comportamento e ignorar a lógica presente nessas ciências exatas, a bendita da navalha de Occam, me parece contraditório se for pra adotarmos uma teoria top-down com um grau de complexidade tamanho."},
+    {"part": 7, "student": "Caique Magalhães", "page": "276", "excerpt": "‘’The physicochemical contact medium corresponds to the logical identification that, for example, light is a medium required for an object to stimulate a photically sensitive organism.’’", "comment": "Não sei o quão inteirada essa afirmação está dos avanços relativamente recentes na física quântica, mas se a gente considera que um elétron se comporta como partícula, como onda, ou como os dois, a depender do experimento estar sendo observado ou registrado, não dá pra usar a luz como exemplo de ''meio'', já que a estimulação luminosa dependeria do contexto pressiposto de outros elementos do meio estarem presente. A análise teórica dele toma por garantidos os meios de interação, como elementos constantes e imutáveis, quando já sabemos que não é esse o caso. A tentativa de sistematizar uma teoria do comportamento é muito válida, mas eu me pergunto se estamos prontos pra isto, visto que nos deparamos frequentemente com as nossas próprias limitações para analisar fenômenos simples e também os complexos."},
+    {"part": 7, "student": "Letícia de Assis Pereira Jardim", "page": "311", "excerpt": "I hope this exposition provides the necessary clues to understand the meaning of\n\nthe chapter’s title. It is not a matter of exposing a biased way of understanding psy-\nchological phenomena, better or worse than the others, but of formulating the disci-\npline’s specifc and proper system, which contributes to its delimitation and\n\nrelationship with other sciences. Accounts for how its subject matter can be built\nfrom practices in the real world, and how we may go back to that world to better\ninterpret it and promote valued changes. Perhaps the moment has arrived that we no\n\nlonger need to adjectivize behaviorisms and to propose a general theory of psychol-\nogy, without “isms.", "comment": "A proposta de uma teoria da psicologia sem os \"ismos\" do Ribes me fez lembrar da fala muito semelhante do Stadon no capítulo 7. Não consigo enxergar uma viabilidade nessa proposta de criar uma teoria geral da psicologia e unificar as diferentes visões de homem e de mundo mas compreendo e concordo que estar preso a um \"ismo\" pode impactar negativamente no trabalho do cientista que não explora possibilidades para além do \"ismo\" escolhido."},
+    {"part": 7, "student": "Sabrina Affonso", "page": "323", "excerpt": "Grounded on rigorous conceptual and theoretical reasoning, TP undoubtedly shows remarkable explanatory power. Due to the rich resources it offers to a detailed description of behavior, TP can be compared to a very high defnition set of photographs. This virtue, however, brings with it a relevant limitation: the photographs are probably too heavy, and its processing is not viable or too slow in most devices. Thus, it would not be surprising that people continued to choose the low-resolution photographs of atomistic theories instead of their more costly alternatives. In order to accomplish its social function of providing scientifc interpretations to be adapted and used in the interdisciplinary felds, TP has to fnd a way to present more accessible images of itself.", "comment": "Eu poderia ter comentários sobre esse behaviorismo, contudo, minha capacidade de retenção frente à quantidade de informações fornecidas foi superada. Ao término do capítulo, eu já não me lembrada dos conceitos e da fundamentação, e a figura 19.4 foi particularmente marcante. Se, de fato, trata-se de uma teoria com o rigoroso raciocínio conceitual e teórico que o Professor Hernando e seu colega afirmaram (e eu acredito neles), Ribes-Iñesta realmente precisa de filhos férteis e que tenham muita paciência para explicar a teoria aos novos behavioristas pelo mundo."},
+    {"part": 7, "student": "Lorena Caroline Mariano Constanski", "page": "285", "excerpt": "Unfortunately, none of the existing psychologies have been systematically concerned with examining the functional nature of 'mental' phenomena", "comment": "O autor parece indicar uma possível falha na psicologia: não estamos explorando suficientemente a natureza funcional dos fenômenos mentais na vida cotidiana. Isso me faz questionar se as teorias atuais estão realmente conectadas com o comportamento e a comunicação observáveis no dia a dia. Talvez estejamos muito focados em conceitos complexos sem aplicá-los de forma prática e observável. Esse ponto sugere a importância de uma abordagem mais integrada na psicologia, que considere tanto os processos internos da mente quanto as interações observáveis no mundo real"}
+  ]
+);
 /* =========================================================
    MARGINÁLIA — vozes da disciplina  (módulo isolado)
    --------------------------------------------------------
@@ -6985,6 +7696,8 @@ const MARGINALIA = {
             reply:"comentário da turma (opcional)" }
         part = 1 Teleológico(Rachlin) · 2 Molar(Baum)
              · 3 Teórico(Staddon) · 4 Biológico(Donahoe)
+             · 5 Intencional(Foxall) · 6 Contextual(Hayes)
+             · 7 de Campo(Ribes-Iñesta)
      2) Pronto. A aba da turma, a nuvem de conceitos e os
         cartões são gerados automaticamente. Para uma turma
         2027+, basta acrescentar a chave "2027": [ … ].
@@ -6996,10 +7709,13 @@ const MARGINALIA = {
   const qsa = (s,r=D)=>Array.from(r.querySelectorAll(s));
 
   const PARTS = {
-    1:{rom:"I",   title:"Teleológico", author:"Rachlin", color:"#7a5a8a"},
-    2:{rom:"II",  title:"Molar",       author:"Baum",    color:"#5d7a4d"},
-    3:{rom:"III", title:"Teórico",     author:"Staddon", color:"#b07a3a"},
-    4:{rom:"IV",  title:"Biológico",   author:"Donahoe", color:"#8a3a3a"}
+    1:{rom:"I",   title:"Teleológico", author:"Rachlin",      color:"#7a5a8a"},
+    2:{rom:"II",  title:"Molar",       author:"Baum",         color:"#5d7a4d"},
+    3:{rom:"III", title:"Teórico",     author:"Staddon",      color:"#b07a3a"},
+    4:{rom:"IV",  title:"Biológico",   author:"Donahoe",      color:"#8a3a3a"},
+    5:{rom:"V",   title:"Intencional", author:"Foxall",       color:"#3f6e8c"},
+    6:{rom:"VI",  title:"Contextual",  author:"Hayes",        color:"#2f7d6e"},
+    7:{rom:"VII", title:"de Campo",    author:"Ribes-Iñesta", color:"#a05a78"}
   };
   const YEARS = Object.keys(MARGINALIA);
 
@@ -7025,7 +7741,13 @@ const MARGINALIA = {
     {label:"os \u201cismos\u201d",      m:["ismo"]},
     {label:"método experimental",      m:["experiment","metodolog","metodo"]},
     {label:"cultura & metacontingência",m:["cultur","metaconting"]},
-    {label:"escala & tempo",           m:["escala","no tempo","ao longo do tempo"]}
+    {label:"escala & tempo",           m:["escala","no tempo","ao longo do tempo"]},
+    {label:"intencionalidade",         m:["intencional","intencionalidade","intentional"]},
+    {label:"consumo & BPM",            m:["consum","consumer","bpm"]},
+    {label:"contextualismo & ACT",     m:["contextual","act ","terapia de aceitacao","funcional-contextual"]},
+    {label:"relações & RFT",           m:["relacional","relational frame","rft","quadro relacional"]},
+    {label:"teoria de campo",          m:["campo","interbehav","intercomportament","field theory","kantor"]},
+    {label:"interação organismo-ambiente",m:["organismo-ambiente","interacao","contato funcional"]}
   ];
 
   const norm = s => (s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
@@ -7075,17 +7797,8 @@ const MARGINALIA = {
   }
 
   function buildFilters(){
-    elFilters.innerHTML="";
-    const mk=(part,label)=>{
-      const b=D.createElement("button");
-      b.className="marg-chip"+((curPart===part)?" is-active":"");
-      if(part) b.style.setProperty("--pc", PARTS[part].color);
-      b.innerHTML=(part?'<span class="dot"></span>':'')+label;
-      b.onclick=()=>{ curPart=part; curConcept=null; render(); };
-      return b;
-    };
-    elFilters.appendChild(mk(0,"Todos"));
-    [1,2,3,4].forEach(p=> elFilters.appendChild(mk(p, PARTS[p].rom+" · "+PARTS[p].title+" · "+PARTS[p].author)));
+    /* chips removidos: cada capítulo é um botão recolhível — navegação por descoberta */
+    if(elFilters) elFilters.style.display="none";
   }
 
   function buildCloud(){
@@ -7180,6 +7893,7 @@ const MARGINALIA = {
 
   function render(){
     buildYears(); buildFilters(); buildCloud();
+    if(cloudBox){ cloudBox.classList.add("is-collapsed"); const ct=qs("#cloudToggle"); if(ct) ct.setAttribute("aria-expanded","false"); }
     const all=dataset();
     elWall.classList.remove("filtering");
     elWall.innerHTML="";
@@ -7187,23 +7901,20 @@ const MARGINALIA = {
     elCount.innerHTML='<b>'+all.length+'</b> anota'+(all.length>1?'ções':'ção')+
                       (curPart?' · '+PARTS[curPart].title:'');
 
-    const partsToShow = curPart ? [curPart] : [1,2,3,4];
+    const partsToShow = curPart ? [curPart] : Object.keys(PARTS).map(Number);
     if(allBtns) allBtns.style.display = partsToShow.length>1 ? "flex" : "none";
 
-    let gi=0;
     partsToShow.forEach(pn=>{
       const items=all.filter(e=>e.part===pn);
       if(!items.length) return;
       const p=PARTS[pn];
       const grp=D.createElement("section");
-      grp.className="marg-group"; grp.dataset.part=pn;
+      grp.className="marg-group is-collapsed"; grp.dataset.part=pn;   /* tudo recolhido: só os botões à mostra */
       grp.style.setProperty("--pc", p.color);
-      const collapsed = (partsToShow.length>1 && gi>0);   /* 1º capítulo aberto, demais recolhidos */
-      if(collapsed) grp.classList.add("is-collapsed");
 
       const head=D.createElement("button");
       head.className="mg-head"; head.type="button";
-      head.setAttribute("aria-expanded", collapsed?"false":"true");
+      head.setAttribute("aria-expanded","false");
       head.innerHTML='<span class="mg-rom">'+p.rom+'</span>'+
         '<span class="mg-titles"><b>'+p.title+'</b><span class="au">'+p.author+'</span></span>'+
         '<span class="mg-n">'+items.length+' trecho'+(items.length>1?'s':'')+'</span>'+
@@ -7219,14 +7930,23 @@ const MARGINALIA = {
 
       grp.appendChild(head); grp.appendChild(body);
       elWall.appendChild(grp);
-      gi++;
     });
 
     qsa(".marg-card",elWall).forEach(c=>io.observe(c));
     paintWall();
   }
 
-  elClear.onclick=()=>{ curConcept=null; buildCloud(); paintWall(); };
+  elClear.onclick=(ev)=>{ ev.stopPropagation(); curConcept=null; buildCloud(); paintWall(); };
+
+  const cloudToggle=qs("#cloudToggle");
+  if(cloudToggle){
+    const toggleCloud=()=>{
+      const c=cloudBox.classList.toggle("is-collapsed");
+      cloudToggle.setAttribute("aria-expanded", c?"false":"true");
+    };
+    cloudToggle.addEventListener("click",(ev)=>{ if(ev.target.closest("#cloudClear"))return; toggleCloud(); });
+    cloudToggle.addEventListener("keydown",(ev)=>{ if(ev.key==="Enter"||ev.key===" "){ ev.preventDefault(); toggleCloud(); } });
+  }
 
   qs("#margShuffle").onclick=()=>{
     qsa(".mg-body", elWall).forEach(body=>{
